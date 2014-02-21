@@ -1,0 +1,23 @@
+{
+    "name": "joegreen0991/db-sync",
+    "type": "library",
+    "description": "Command component based on laravel's",
+    "autoload": {
+        "psr-0": { 
+            "DbSync": "src"
+         },
+         "files" : ["src/functions.php"]
+    },
+    "bin" : ["bin/sync"],
+    "repositories" : [
+        {
+            "url" : "http://github.com/joegreen0991/php-cli",
+            "type" : "vcs"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require" : {
+       "joegreen0991/php-cli" : "dev-master",
+       "psr/log" : "dev-master"
+    }
+}

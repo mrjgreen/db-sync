@@ -1,0 +1,158 @@
+#!/usr/bin/env php
+<?php
+
+include __DIR__ . '/../vendor/autoload.php';
+
+set_error_handler(function ($level, $message, $file, $line, $context)
+{
+    if (error_reporting() & $level)
+    {
+        throw new ErrorException($message, $level, 0, $file, $line);
+    }
+});
+
+/*
+        --algorithms              Chunk,Nibble,GroupBy,Stream
+        --buffer-in-mysql         FALSE
+        --buffer-to-client        TRUE
+  --charset                 (No value)
+  --check-triggers          TRUE
+  --chunk-column            (No value)
+  --chunk-index             (No value)
+  --chunk-size              1000
+  --columns                 (No value)
+  --dry-run                 FALSE
+  --engines                 (No value)
+  --execute                 FALSE
+  --foreign-key-checks      TRUE
+  --function                (No value)
+  --help                    TRUE
+  --ignore-columns          
+  --ignore-databases        
+  --ignore-engines          FEDERATED,MRG_MyISAM
+  --ignore-tables           
+        --index-hint              TRUE
+  --lock                    (No value)
+  --password                (No value)
+  --pid                     (No value)
+  --port                    (No value)
+  --print                   FALSE
+  --tables                  (No value)
+  --transaction             FALSE
+  --unique-checks           TRUE
+  --user                    (No value)
+  --verbose                 0
+  --where                   (No value)
+ */
+
+class DbSyncCommand extends Command {
+    
+    public function getOptions()
+    {
+        return array(
+            //array('algorithms','a',self::OPTIONAL, 'User order in which to run the algorithms', 'Chunk,Nibble,GroupBy,Stream'),
+            array('charset',null,self::OPTIONAL, 'The charset to use for the connections'),
+            //array('check-triggers', null ,self::OPTIONAL, 'Check there are no triggers on the table', true),
+            array('chunk-size', null ,self::OPTIONAL, 'The number of rows to chunk', 1000),
+            array('columns','c',self::OPTIONAL, 'The columns to CRC and compare at each side'),
+            array('dry-run', null ,self::OPTIONAL, 'Do not actually write any data, only lists stats of data that would be written', false),
+            //array('engines', null ,self::OPTIONAL, 'Only sync tables with engines of this type'),
+            array('execute', null ,self::OPTIONAL, 'Actually perform the sync', false),
+            //array('foreign-key-checks', null ,self::OPTIONAL, 'Enable foreign key checks SET FOREIGN_KEY_CHECKS=1', true),
+            array('function', null ,self::OPTIONAL, 'The hash function to use: CRC32, MD5, SHA1', 'CRC32'),
+            array('ignore-columns', null ,self::OPTIONAL, 'The columns not to CRC and compare at each side'),
+            //array('ignore-engines', null ,self::OPTIONAL, 'Ignore this comma-separated list of storage engines.default: FEDERATED,MRG_MyISAM', 'FEDERATED,MRG_MyISAM'),
+            array('ignore-sync-columns', null ,self::OPTIONAL, 'The columns not to sync'),
+            array('ignore-tables', null ,self::OPTIONAL, 'The tables not to sync'),
+            //array('lock', null ,self::OPTIONAL, 'Lock each table while syncing. This uses LOCK TABLES. This can help prevent tables being changed while you’re examining them.', false),
+            array('password', 'p' ,self::OPTIONAL, 'The password for the specified user'),
+            array('sync-columns', null ,self::OPTIONAL, 'The columns to sync'),
+            array('tables', null ,self::OPTIONAL, 'The tables to sync'),
+            //array('transaction', null ,self::OPTIONAL, 'User transactions instead of locking', false),
+            //array('unique-checks', null ,self::OPTIONAL, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
+            array('user', 'u' ,self::OPTIONAL, 'The name of the user to connect with'),
+            array('where', null ,self::OPTIONAL, 'A WHERE clause to apply against the table'),
+        );
+    }
+    
+    public function getArguments()
+    {
+        return array(
+            array('source', self::REQUIRED, 'The source DSN: host:database OR user:password@host:database'),
+            array('destination', self::REQUIRED, 'The destination DSN: host:database OR user:password@host:database'),
+        );
+    }
+    
+    public function fire()
+    {
+        if(!$this->getOption('dry-run') && !$this->getOption('execute'))
+        {
+            throw new \Exception('Either "--dry-run" or "--execute" must be specified.');
+        }
+        
+        $comparisonFactory = new DbSync\Comparison\Factory($this->getOption('chunk-size'), $this->getOption('function'));
+        
+        $syncStrategy = new DbSync\Sync\Single();
+        
+        list($source, $dest) = $this->parsePdoOptions(array($this->getArgument('source'), $this->getArgument('destination')), $this->getOption('user'), $this->getOption('password'));
+
+        $sync = new DbSync\DbSync($this->getOption('execute'), $source, $dest, $comparisonFactory, $syncStrategy, new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet')));
+                
+        $sync->compareDatabase(
+                $this->csvOption('tables'),
+                $this->csvOption('ignore-tables'),
+                $this->csvOption('columns'),
+                $this->csvOption('ignore-columns'),
+                $this->csvOption('sync-columns'),
+                $this->csvOption('ignore-sync-columns'),
+                $this->csvOption('where'));
+        
+    }
+    
+    protected function csvOption($optionName)
+    {
+        $option = trim($this->getOption($optionName));
+        
+        return array_filter(explode(',',$option));
+    }
+    
+    protected function parsePdoOptions($dsns, $defaultUser = null, $defaultPassword = null)
+    {
+        $dsnArray = array();
+        
+        foreach($dsns as $key => $dsn)
+        {
+            $parts = explode('@', $dsn, 2);
+            
+            if(count($parts) < 2)
+            {
+                if(!$defaultUser)
+                {
+                    throw new \Exception('Please provide a user in the dsn arguments or using the --user option');
+                }
+                
+                array_unshift($parts, $defaultUser . ':' . $defaultPassword);
+            }
+            
+            $usernameAndPassword = explode(':', $parts[0]);
+            $hostAndDb = explode(':', $parts[1]);
+
+            if(count($usernameAndPassword) !== 2 || count($hostAndDb) !== 2)
+            {
+                throw new \Exception('Invalid DSN string for host argument ' . $key . '. Please provide the format user:pass@host:database');
+            }
+            
+            $dsnArray[] = array(
+                'host'       => $hostAndDb[0],
+                'database'    => $hostAndDb[1],
+                'user'  => $usernameAndPassword[0],
+                'password'  => $usernameAndPassword[1],
+                'charset' => $this->getOption('charset')
+            );
+        }
+        
+        return $dsnArray;
+    }
+}
+
+DbSyncCommand::createFromCliArgs()->fire();
