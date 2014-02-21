@@ -16,6 +16,6 @@ foreach($folders as $folder)
 }
 
 $phar['bin/sync'] = file_get_contents($file);
-$phar->setStub('bin/sync');
+$phar->setStub($phar->createDefaultStub('bin/sync'));
 
 $phar->startBuffering();
