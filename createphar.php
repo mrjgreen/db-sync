@@ -5,7 +5,7 @@ $phar->setSignatureAlgorithm(\Phar::SHA1);
 
 $phar->startBuffering();
 
-$folders = array('src', 'vendor');
+$folders = array(__DIR__ . '/src', __DIR__ . '/vendor');
 
 foreach($folders as $folder)
 {
@@ -15,7 +15,7 @@ foreach($folders as $folder)
     }
 }
 
-$phar['bin/sync'] = file_get_contents($file);
-$phar->setStub($phar->createDefaultStub('bin/sync'));
+$phar[__DIR__ . '/bin/sync'] = file_get_contents($file);
+$phar->setStub($phar->createDefaultStub(__DIR__ . '/bin/sync'));
 
-$phar->startBuffering();
+$phar->stopBuffering();
