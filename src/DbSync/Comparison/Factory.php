@@ -2,11 +2,23 @@
 
 class Factory {
     
-    protected $type;
+    //protected $type;
     
     protected $function;
     
     protected $blockSize;
+    
+    protected $table;
+    
+    protected $primaryKey;
+    
+    protected $comparisonColumns;
+
+    protected $where;
+    
+    protected $destination;
+
+    protected $source;
     
     public function __construct($blockSize = 1000, $hashFunction = null)
     {
@@ -15,9 +27,37 @@ class Factory {
         $this->blockSize = $blockSize;
     }
     
-    public function getComparisonIterator($source, $destination, $table, $primaryKey, $comparisonColumns, $where)
+    public function setTable($table, $primaryKey, $comparisonColumns, $syncColumns, $where)
     {
-        return new LimitIterator(new Hash($source, $destination, $table, $primaryKey, $comparisonColumns, $where, $this->hashFunction),$this->blockSize);
+        $this->table = $table;
+        
+        $this->primaryKey = $primaryKey;
+        
+        $this->comparisonColumns = $comparisonColumns;
+        
+        $this->syncColumns = $syncColumns;
+        
+        $this->where = $where;
+    }
+    
+    public function setSource($source)
+    {
+        $this->source = $source;
+    }
+    
+    public function setDestination($destination)
+    {
+        $this->destination = $destination;
+    }
+    
+    public function getComparisonIterator()
+    {
+        return new LimitIterator(new Hash($this->source, $this->destination, $this->table, $this->primaryKey, $this->comparisonColumns, $this->where, $this->hashFunction),$this->blockSize);
+    }
+    
+    public function getSyncObject()
+    {
+        return new Sync($this->source, $this->destination, $this->table, $this->primaryKey, $this->syncColumns, $this->where, $this->blockSize);
     }
 }
 

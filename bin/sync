@@ -50,18 +50,14 @@ class DbSyncCommand extends Command {
     public function getOptions()
     {
         return array(
-            //array('algorithms','a',self::OPTIONAL, 'User order in which to run the algorithms', 'Chunk,Nibble,GroupBy,Stream'),
             array('charset',null,self::REQUIRED, 'The charset to use for the connections'),
-            //array('check-triggers', null ,self::OPTIONAL, 'Check there are no triggers on the table', true),
             array('chunk-size', null ,self::REQUIRED, 'The number of rows to chunk', 1000),
             array('columns','c',self::REQUIRED, 'The columns to CRC and compare at each side'),
             array('dry-run', 'd' ,self::VALUE_NONE, 'Do not actually write any data, only lists stats of data that would be written', false),
-            //array('engines', null ,self::OPTIONAL, 'Only sync tables with engines of this type'),
             array('execute', 'e' ,self::VALUE_NONE, 'Actually perform the sync', false),
-            //array('foreign-key-checks', null ,self::OPTIONAL, 'Enable foreign key checks SET FOREIGN_KEY_CHECKS=1', true),
+            array('foreign-key-checks', null ,self::OPTIONAL, 'Enable foreign key checks SET FOREIGN_KEY_CHECKS=1', true),
             array('function', null ,self::REQUIRED, 'The hash function to use: CRC32, MD5, SHA1', 'CRC32'),
             array('ignore-columns', null ,self::REQUIRED, 'The columns not to CRC and compare at each side'),
-            //array('ignore-engines', null ,self::OPTIONAL, 'Ignore this comma-separated list of storage engines.default: FEDERATED,MRG_MyISAM', 'FEDERATED,MRG_MyISAM'),
             array('ignore-sync-columns', null ,self::REQUIRED, 'The columns not to sync'),
             array('ignore-tables', null ,self::REQUIRED, 'The tables not to sync'),
             //array('lock', null ,self::OPTIONAL, 'Lock each table while syncing. This uses LOCK TABLES. This can help prevent tables being changed while you’re examining them.', false),
@@ -69,7 +65,7 @@ class DbSyncCommand extends Command {
             array('sync-columns', null ,self::REQUIRED, 'The columns to sync'),
             array('tables', null ,self::REQUIRED, 'The tables to sync'),
             //array('transaction', null ,self::OPTIONAL, 'User transactions instead of locking', false),
-            //array('unique-checks', null ,self::OPTIONAL, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
+            array('unique-checks', null ,self::REQUIRED, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
             array('user', 'u' ,self::REQUIRED, 'The name of the user to connect with'),
             array('where', null ,self::REQUIRED, 'A WHERE clause to apply against the table'),
         );
@@ -90,21 +86,20 @@ class DbSyncCommand extends Command {
             throw new \Exception('Either "--dry-run" or "--execute" must be specified.');
         }
         
-        $comparisonFactory = new DbSync\Comparison\Factory($this->getOption('chunk-size'), $this->getOption('function'));
+        $comparisonFactory = new DbSync\Comparison\Factory($this->getOption('chunk-size'), $this->getOption('function'), $this->getOption('unique-checks'), $this->getOption('foreign-key-checks'));
         
-        $syncStrategy = new DbSync\Sync\Single();
         
         list($source, $dest) = $this->parsePdoOptions(array($this->getArgument('source'), $this->getArgument('destination')), $this->getOption('user'), $this->getOption('password'));
 
-        $sync = new DbSync\DbSync($this->getOption('execute'), $source, $dest, $comparisonFactory, $syncStrategy, new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet')));
+        $sync = new DbSync\DbSync($this->getOption('execute'), $source, $dest, $comparisonFactory, new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet')));
                 
         $sync->compareDatabase(
                 $this->csvOption('tables'),
                 $this->csvOption('ignore-tables'),
-                $this->csvOption('columns'),
-                $this->csvOption('ignore-columns'),
                 $this->csvOption('sync-columns'),
                 $this->csvOption('ignore-sync-columns'),
+                $this->csvOption('columns'),
+                $this->csvOption('ignore-columns'),
                 $this->csvOption('where'));
         
     }

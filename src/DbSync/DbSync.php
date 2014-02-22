@@ -11,24 +11,24 @@ class DbSync {
     protected $source;
     
     protected $destination;
-        
-    protected $syncStrategy;
-    
+            
     protected $comparisonFactory;
     
     protected $output;
     
     protected $execute;
         
-    public function __construct($execute, array $sourceOptions, array $destOptions, Factory $comparisonFactory, Single $syncStrategy, LoggerInterface $output)
+    public function __construct($execute, array $sourceOptions, array $destOptions, Factory $comparisonFactory, LoggerInterface $output)
     {        
         $this->source = Dbal\Db::make($sourceOptions);
         
         $this->destination = Dbal\Db::make($destOptions);
-                
-        $this->syncStrategy = $syncStrategy;
-        
+                        
         $this->comparisonFactory = $comparisonFactory;
+        
+        $this->comparisonFactory->setSource($this->source);
+        
+        $this->comparisonFactory->setDestination($this->destination);
         
         $this->output = $output;
         
@@ -44,17 +44,17 @@ class DbSync {
         return $array;
     }
     
-    public function compareDatabase(array $onlyTables = array(), array $exceptTables = array(), array $onlyComparison = array(), array $exceptComparison = array(), array $onlySync = array(), array $exceptSync = array(), $where = null)
+    public function compareDatabase(array $onlyTables = array(), array $exceptTables = array(), array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
     {
         $tables = $this->diffAndIntersect($this->source->showTables(), $onlyTables, $exceptTables);
         
         foreach($tables as $table)
         {
-            $this->compareTable($table, $onlyComparison, $exceptComparison, $onlySync, $exceptSync, $where);
+            $this->compareTable($table, $onlySync, $exceptSync, $onlyComparison, $exceptComparison, $where);
         }
     }
     
-    public function compareTable($table, array $onlyComparison = array(), array $exceptComparison = array(), array $onlySync = array(), array $exceptSync = array(), $where = null)
+    public function compareTable($table, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
     {        
         $this->output->info("Table: " . $table);
                 
@@ -65,12 +65,12 @@ class DbSync {
         $comparisonColumns = $this->diffAndIntersect($this->source->getColumnNames($table), $onlyComparison, $exceptComparison);
         
         $comparisonColumns = array_intersect($comparisonColumns, $syncColumns);
-          
-        $select = $this->syncStrategy->selectQuery($table, $primaryKey, $syncColumns);
-        
-        $insert = $this->syncStrategy->insertQuery($table, $primaryKey, $syncColumns);
 
-        $comparisonIterator = $this->comparisonFactory->getComparisonIterator($this->source, $this->destination, $table, $primaryKey, $comparisonColumns, $where);
+        $this->comparisonFactory->setTable($table, $primaryKey, $comparisonColumns, $syncColumns, $where);
+
+        $comparisonIterator = $this->comparisonFactory->getComparisonIterator();
+        
+        $syncObject = $this->comparisonFactory->getSyncObject();
                 
         foreach($comparisonIterator as $row => $result)
         {            
@@ -78,12 +78,13 @@ class DbSync {
             {            
                 $this->output->info("\tMismatch found in table: " . $table . ' Row: ' . $row . ' Keys: ', $result);
                 
-                $this->sync($select, $insert, array_values($result));
+                $syncObject->sync(array_values($result));
             }
             
         }
     }
     
+    /*
     protected function sync($select, $insert, $keyValues)
     {
         $this->output->info("\tSource: \t" . $select);
@@ -103,5 +104,5 @@ class DbSync {
                 $this->output->info("\tDry run");
             }
         }
-    }
+    }*/
 }

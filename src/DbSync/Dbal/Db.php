@@ -294,6 +294,41 @@ class Db {
 
         return $this->query($sql, array_values($data));
     }
+    
+    /**
+     * 
+     * @param string $table
+     * @param array $data
+     * @param bool $ignore Run as an insert ignore
+     * @return \PDOStatement
+     * @throws DbException
+     */
+    public function multiReplace($table, array $data){
+    	
+        if (!count($data)) {
+            throw new EmptyDataset('No data in array to insert');
+        }
+        
+        $cols = null;
+        $qs = '';
+        $bind = array();
+        
+        foreach($data as $row)
+        {   $qs .= '(';
+            $cols or $cols = array_keys($row);
+            foreach ($row as $col => $v) {
+                $qs .= ($v instanceof Expr ? (string)$v : '?') . ',';
+                if(!$v instanceof Expr){
+                    $bind[] = $row[$col];
+                }
+            }
+            $qs = trim($qs, ',') . '),';
+        }
+        
+        $sql = 'REPLACE INTO ' . $table . ' (' . implode(',', $cols) . ') VALUES ' . trim($qs, ',') . '';
+
+        return $this->query($sql, $bind);
+    }
 
     /**
      * 
