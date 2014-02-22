@@ -15,6 +15,11 @@
             "type" : "vcs"
         }
     ],
+    "scripts": {
+        "post-autoload-dump": [
+                "php build/createphar.php"
+        ]
+    },
     "minimum-stability": "dev",
     "require" : {
        "joegreen0991/php-cli" : "dev-master",

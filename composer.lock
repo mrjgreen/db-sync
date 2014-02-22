@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cb216a372ddd33c8687eaeac694b1ed8",
+    "hash": "d78d7211f16b9409c503cb360e1d5723",
     "packages": [
         {
             "name": "joegreen0991/php-cli",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/joegreen0991/php-cli.git",
-                "reference": "f98aa0b348dc1a10d901adae02aaca7d6c1ec212"
+                "reference": "ed20427f9b37fd02eb853b3c1b38c495a94327ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joegreen0991/php-cli/zipball/f98aa0b348dc1a10d901adae02aaca7d6c1ec212",
-                "reference": "f98aa0b348dc1a10d901adae02aaca7d6c1ec212",
+                "url": "https://api.github.com/repos/joegreen0991/php-cli/zipball/ed20427f9b37fd02eb853b3c1b38c495a94327ac",
+                "reference": "ed20427f9b37fd02eb853b3c1b38c495a94327ac",
                 "shasum": ""
             },
             "type": "library",
@@ -30,7 +30,7 @@
                 "source": "https://github.com/joegreen0991/php-cli/tree/master",
                 "issues": "https://github.com/joegreen0991/php-cli/issues"
             },
-            "time": "2014-02-21 17:28:09"
+            "time": "2014-02-22 10:20:37"
         },
         {
             "name": "psr/log",
