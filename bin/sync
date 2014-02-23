@@ -28,6 +28,7 @@ class DbSyncCommand extends Command {
             array('ignore-tables', null ,self::REQUIRED, 'Tables to ignore when syncing'),
             array('password', 'p' ,self::REQUIRED, 'The password for the specified user'),
             array('sync-columns', null ,self::REQUIRED, 'The columns to compare and sync'),
+            array('sync-method', null ,self::REQUIRED, 'The method used to write rows: replace, update. NB replace will fill missing sync columns with defaults. Use update if this is not desired behavior', 'replace'),
             array('tables', null ,self::REQUIRED, 'The tables to sync'),
             array('transfer-size', 't' ,self::REQUIRED, 'The number of rows to transfer at once from non-matching blocks', 50),
             array('unique-checks', null ,self::REQUIRED, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
@@ -53,9 +54,20 @@ class DbSyncCommand extends Command {
         
         $destination = DbSync\Dbal\Db::make($destOptions);
         
+        if($this->getOption('sync-method') === 'replace')
+        {
+            $method = '\DbSync\Sync\Replace';
+        }
+        elseif($this->getOption('sync-method') === 'update')
+        {
+            $method = '\DbSync\Sync\OnDuplicateKeyUpdate';
+        }
+        else
+        {
+            throw new Exception('Invalid sync method: ' . $this->getOption('sync-method'));
+        }
         
-        $syncObject = new \DbSync\Sync\BulkReplace($source, $destination, $this->getOption('unique-checks'), $this->getOption('foreign-key-checks'));
-        
+        $syncObject = new $method($source, $destination, $this->getOption('unique-checks'), $this->getOption('foreign-key-checks'));
         
         $iterator = new DbSync\Comparison\LimitIterator($this->getOption('chunk-size'), $this->getOption('transfer-size'));
         $comparisonObject = new DbSync\Comparison\Hash($source, $destination, $iterator, $this->getOption('function'));
