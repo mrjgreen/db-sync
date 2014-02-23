@@ -1,9 +1,5 @@
 <?php namespace DbSync;
 
-use DbSync\Comparison\LimitIterator;
-use DbSync\Comparison\Hash;
-use DbSync\Comparison\Factory;
-use DbSync\Sync\Single;
 use Psr\Log\LoggerInterface;
 
 class DbSync {
@@ -11,28 +7,30 @@ class DbSync {
     protected $source;
     
     protected $destination;
-            
-    protected $comparisonFactory;
+                
+    protected $comparison;
+    
+    protected $sync;
     
     protected $output;
     
     protected $execute;
         
-    public function __construct($execute, array $sourceOptions, array $destOptions, Factory $comparisonFactory, LoggerInterface $output)
+    public function __construct($execute, $sourceOptions, $destOptions , $syncObject, $comparisonObject, LoggerInterface $output)
     {        
-        $this->source = Dbal\Db::make($sourceOptions);
+        $this->source = $sourceOptions;
         
-        $this->destination = Dbal\Db::make($destOptions);
+        $this->destination = $destOptions;
                         
-        $this->comparisonFactory = $comparisonFactory;
-        
-        $this->comparisonFactory->setSource($this->source);
-        
-        $this->comparisonFactory->setDestination($this->destination);
-        
+        $this->comparison = $comparisonObject;
+                
+        $this->sync = $syncObject;
+                
         $this->output = $output;
         
         $this->execute = $execute;
+        
+        $execute ? $this->output->alert('Executing') : $this->output->info('Dry run only... Add --execute (-e) to perform write');
     }
     
     protected function diffAndIntersect(array $array, array $only, array $except)
@@ -57,52 +55,31 @@ class DbSync {
     public function compareTable($table, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
     {        
         $this->output->info("Table: " . $table);
-                
-        $primaryKey = $this->source->showPrimaryKey($table);
-        
+                        
         $syncColumns = $this->diffAndIntersect($this->source->getColumnNames($table), $onlySync, $exceptSync);
-        
-        $comparisonColumns = $this->diffAndIntersect($this->source->getColumnNames($table), $onlyComparison, $exceptComparison);
-        
-        $comparisonColumns = array_intersect($comparisonColumns, $syncColumns);
-
-        $this->comparisonFactory->setTable($table, $primaryKey, $comparisonColumns, $syncColumns, $where);
-
-        $comparisonIterator = $this->comparisonFactory->getComparisonIterator();
-        
-        $syncObject = $this->comparisonFactory->getSyncObject();
                 
-        foreach($comparisonIterator as $row => $result)
+        $comparisonColumns = $this->diffAndIntersect($syncColumns, $onlyComparison, $exceptComparison);
+
+        $this->comparison->setTable($table, $comparisonColumns, $syncColumns, $where);
+                
+        foreach($this->comparison as $row => $result)
         {            
             if($result) 
             {            
-                $this->output->info("\tMismatch found in table: " . $table . ' Row: ' . $row . ' Keys: ', $result);
+                $this->output->info("\tMismatch found in table: " . $table . ' Row: ' . $row . ' Select: ' . $result);
                 
-                $syncObject->sync(array_values($result));
+                if($this->execute)
+                {
+                    $this->output->info("\tExecuted");
+                    
+                    $this->sync->sync($table, $result);
+                }
+                else
+                {
+                    $this->output->info("\tDry run");
+                }
             }
             
         }
     }
-    
-    /*
-    protected function sync($select, $insert, $keyValues)
-    {
-        $this->output->info("\tSource: \t" . $select);
-        $this->output->info("\tDest:   \t" . $insert);
-        
-        foreach($this->source->query($select, $keyValues) as $row)
-        {
-            $this->output->debug("\tData: ", $row);
-            
-            if($this->execute)
-            {
-                $this->output->info("\tExecuted");
-                $this->destination->query($insert, array_merge(array_values($row),array_values($row)));
-            }
-            else
-            {
-                $this->output->info("\tDry run");
-            }
-        }
-    }*/
 }

@@ -303,7 +303,7 @@ class Db {
      * @return \PDOStatement
      * @throws DbException
      */
-    public function multiReplace($table, array $data){
+    public function multiReplace($table, $data){
     	
         if (!count($data)) {
             throw new EmptyDataset('No data in array to insert');

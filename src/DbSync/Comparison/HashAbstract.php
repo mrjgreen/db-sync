@@ -1,6 +1,6 @@
 <?php namespace DbSync\Comparison;
 
-class HashAbstract {
+abstract class HashAbstract implements \IteratorAggregate {
     
     const HASH_MD5 = 'MD5';
     const HASH_SHA1 = 'SHA1';
@@ -14,9 +14,15 @@ class HashAbstract {
     
     private $hashFunction;
     
-    public function __construct($hashFunction = null)
+    private $iterator;
+    
+    public function __construct($iterator, $hashFunction = null)
     {
         $this->hashFunction = $hashFunction ? : self::HASH_CRC32;
+        
+        $this->iterator = $iterator;
+        
+        $this->iterator->setComparison($this);
         
         if(!in_array($this->hashFunction, self::$validHasFunctions))
         {
@@ -29,5 +35,9 @@ class HashAbstract {
         return $this->hashFunction;
     }
     
+    public function getIterator()
+    {
+        return $this->iterator;
+    }
 }
 

@@ -15,7 +15,7 @@ class Logger extends \Psr\Log\AbstractLogger
     }
     public function log($level, $message, array $context = array())
     {
-        if(!$this->quiet && ($this->verbose || $level > \Psr\Log\LogLevel::DEBUG))
+        if(!$this->quiet && ($this->verbose || $level !== \Psr\Log\LogLevel::DEBUG))
         {
             echo $message;
             

@@ -11,63 +11,28 @@ set_error_handler(function ($level, $message, $file, $line, $context)
     }
 });
 
-/*
-        --algorithms              Chunk,Nibble,GroupBy,Stream
-        --buffer-in-mysql         FALSE
-        --buffer-to-client        TRUE
-  --charset                 (No value)
-  --check-triggers          TRUE
-  --chunk-column            (No value)
-  --chunk-index             (No value)
-  --chunk-size              1000
-  --columns                 (No value)
-  --dry-run                 FALSE
-  --engines                 (No value)
-  --execute                 FALSE
-  --foreign-key-checks      TRUE
-  --function                (No value)
-  --help                    TRUE
-  --ignore-columns          
-  --ignore-databases        
-  --ignore-engines          FEDERATED,MRG_MyISAM
-  --ignore-tables           
-        --index-hint              TRUE
-  --lock                    (No value)
-  --password                (No value)
-  --pid                     (No value)
-  --port                    (No value)
-  --print                   FALSE
-  --tables                  (No value)
-  --transaction             FALSE
-  --unique-checks           TRUE
-  --user                    (No value)
-  --verbose                 0
-  --where                   (No value)
- */
 
 class DbSyncCommand extends Command {
     
     public function getOptions()
     {
         return array(
-            array('charset',null,self::REQUIRED, 'The charset to use for the connections'),
-            array('chunk-size', null ,self::REQUIRED, 'The number of rows to chunk', 1000),
-            array('columns','c',self::REQUIRED, 'The columns to CRC and compare at each side'),
-            array('dry-run', 'd' ,self::VALUE_NONE, 'Do not actually write any data, only lists stats of data that would be written', false),
-            array('execute', 'e' ,self::VALUE_NONE, 'Actually perform the sync', false),
-            array('foreign-key-checks', null ,self::OPTIONAL, 'Enable foreign key checks SET FOREIGN_KEY_CHECKS=1', true),
-            array('function', null ,self::REQUIRED, 'The hash function to use: CRC32, MD5, SHA1', 'CRC32'),
-            array('ignore-columns', null ,self::REQUIRED, 'The columns not to CRC and compare at each side'),
-            array('ignore-sync-columns', null ,self::REQUIRED, 'The columns not to sync'),
-            array('ignore-tables', null ,self::REQUIRED, 'The tables not to sync'),
-            //array('lock', null ,self::OPTIONAL, 'Lock each table while syncing. This uses LOCK TABLES. This can help prevent tables being changed while you’re examining them.', false),
+            array('charset',null,self::REQUIRED, 'The charset to use with PDO connections'),
+            array('chunk-size', 's' ,self::REQUIRED, 'The comparion hash block size (number of rows)', 1000),
+            array('columns','c',self::REQUIRED, 'Specify a subset of the sync columns to use in the block compariosn hash'),
+            array('execute', 'e' ,self::VALUE_NONE, 'Perform the data write on non-matching blocks', false),
+            array('foreign-key-checks', null ,self::OPTIONAL, 'Enable foreign key checks when writing data (SET FOREIGN_KEY_CHECKS=1)', true),
+            array('function', null ,self::REQUIRED, 'The hash function to use in the block comparison: CRC32, MD5, SHA1', 'CRC32'),
+            array('ignore-columns', null ,self::REQUIRED, 'Sync columns to ignore in the block compariosn hash'),
+            array('ignore-sync-columns', null ,self::REQUIRED, 'Columns to ignore when syncing and comparing data'),
+            array('ignore-tables', null ,self::REQUIRED, 'Tables to ignore when syncing'),
             array('password', 'p' ,self::REQUIRED, 'The password for the specified user'),
-            array('sync-columns', null ,self::REQUIRED, 'The columns to sync'),
+            array('sync-columns', null ,self::REQUIRED, 'The columns to compare and sync'),
             array('tables', null ,self::REQUIRED, 'The tables to sync'),
-            //array('transaction', null ,self::OPTIONAL, 'User transactions instead of locking', false),
+            array('transfer-size', 't' ,self::REQUIRED, 'The number of rows to transfer at once from non-matching blocks', 50),
             array('unique-checks', null ,self::REQUIRED, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
             array('user', 'u' ,self::REQUIRED, 'The name of the user to connect with'),
-            array('where', null ,self::REQUIRED, 'A WHERE clause to apply against the table'),
+            array('where', null ,self::REQUIRED, 'A WHERE clause to apply against the tables'),
         );
     }
     
@@ -81,17 +46,24 @@ class DbSyncCommand extends Command {
     
     public function fire()
     {
-        if(!$this->getOption('dry-run') && !$this->getOption('execute'))
-        {
-            throw new \Exception('Either "--dry-run" or "--execute" must be specified.');
-        }
         
-        $comparisonFactory = new DbSync\Comparison\Factory($this->getOption('chunk-size'), $this->getOption('function'), $this->getOption('unique-checks'), $this->getOption('foreign-key-checks'));
-        
-        
-        list($source, $dest) = $this->parsePdoOptions(array($this->getArgument('source'), $this->getArgument('destination')), $this->getOption('user'), $this->getOption('password'));
+        list($sourceOptions, $destOptions) = $this->parsePdoOptions(array($this->getArgument('source'), $this->getArgument('destination')), $this->getOption('user'), $this->getOption('password'));
 
-        $sync = new DbSync\DbSync($this->getOption('execute'), $source, $dest, $comparisonFactory, new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet')));
+        $source = DbSync\Dbal\Db::make($sourceOptions);
+        
+        $destination = DbSync\Dbal\Db::make($destOptions);
+        
+        
+        $syncObject = new \DbSync\Sync\BulkReplace($source, $destination, $this->getOption('unique-checks'), $this->getOption('foreign-key-checks'));
+        
+        
+        $iterator = new DbSync\Comparison\LimitIterator($this->getOption('chunk-size'), $this->getOption('transfer-size'));
+        $comparisonObject = new DbSync\Comparison\Hash($source, $destination, $iterator, $this->getOption('function'));
+        
+        
+        $logger = new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet'));
+        
+        $sync = new DbSync\DbSync($this->getOption('execute'), $source, $destination, $syncObject, $comparisonObject, $logger);
                 
         $sync->compareDatabase(
                 $this->csvOption('tables'),

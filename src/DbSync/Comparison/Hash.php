@@ -5,61 +5,66 @@ class Hash extends HashAbstract {
     protected $source;
     
     protected $destination;
-    
-    protected $total;
-    
+        
     protected $primaryKey;
     
     protected $table;
         
     protected $comparisonColumns;
     
+    protected $syncColumns;
+    
     protected $columns;
     
     protected $where;
     
+    protected $total;
     
-    public function __construct($source, $destination, $table, $primaryKeyColumns, $comparisonColumns, $where = null, $hashFunction = null)
+    
+    public function __construct($source, $destination, $iterator, $hashFunction = null)
     {
-        
-        $this->where = $where ? ' WHERE ' . $where : '';
-        
-        $this->total = $source->fetchOne('SELECT count(*) FROM ' . $table . $this->where);
-        
-        $this->primaryKey = $primaryKeyColumns;
-        
-        $this->comparisonColumns = $comparisonColumns;
-        
         $this->source = $source;
         
         $this->destination = $destination;
-        
-        $this->columns = array_unique(array_merge($primaryKeyColumns, $comparisonColumns));
-        
+                                
+        parent::__construct($iterator, $hashFunction);
+    }
+    
+    public function setTable($table, $comparisonColumns, $syncColumns, $where)
+    {
         $this->table = $table;
         
-        $this->primaryKey = $primaryKeyColumns;
+        $this->primaryKey = $this->source->showPrimaryKey($table);
         
-        parent::__construct($hashFunction);
+        $this->comparisonColumns = $comparisonColumns;
+        
+        $this->syncColumns = $syncColumns;
+        
+        $this->columns = array_unique(array_merge($this->primaryKey, $comparisonColumns));
+        
+        $this->where = $where ? ' AND ' . $where : '';
+        
+        $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->table . ' WHERE 1' . $this->where);
     }
     
     public function total()
     {
-        return $this->source->fetchOne('SELECT count(*) FROM ' . $this->table . $this->where);
+        return $this->total;
     }
-    
     
     public function compare($offset, $blockSize)
     {
         $orderString = '`' . implode($this->primaryKey, '`,`') . '`';
         
         $colsString = '`' . implode($this->columns, '`,`') . '`';
+        
+        $syncColsString = '`' . implode($this->columns, '`,`') . '`';
                                 
-        $query = "SELECT COUNT(*) AS cnt, 
-        COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $colsString)) AS UNSIGNED)), 10, 16)), 0) AS crc,
-        $orderString
+        $query = "SELECT
+        COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $colsString)) AS UNSIGNED)), 10, 16)), 0) AS crc
         FROM (SELECT $colsString FROM $this->table
         FORCE INDEX (`PRIMARY`) 
+        WHERE 1
         $this->where
         ORDER BY $orderString
         LIMIT $offset, $blockSize) as tmp";
@@ -67,13 +72,13 @@ class Hash extends HashAbstract {
         $sourceResult = $this->source->fetch($query);
         
         $destResult = $this->destination->fetch($query);
-        
-        if($sourceResult['cnt'] == 0 && $destResult['cnt'] == 0)
+
+        if($sourceResult === $destResult)
         {
-            $this->block = $this->total; // Make it invalid
+            return false;
         }
         
-        return $sourceResult === $destResult ? false : array_slice($sourceResult, 2);
+        return "SELECT $syncColsString FROM $this->table WHERE 1 $this->where ORDER BY $orderString LIMIT $offset, $blockSize";
     }
 }
 

@@ -7,18 +7,16 @@ class LimitIterator implements \Iterator {
     protected $block = 0;
         
     protected $row = 0;
-    
-    protected $total;
-    
+        
     protected $comparsion;
     
-    public function __construct($comparsion, $blockSize = 1000)
+    protected $transferSize;
+    
+    public function __construct($blockSize = 1000, $transferSize = 10)
     {        
         $this->blockSize = $blockSize;
-        
-        $this->comparsion = $comparsion;
 
-        $this->total = $this->comparsion->total();
+        $this->transferSize = $transferSize;
     }
     
     public function valid()
@@ -28,7 +26,12 @@ class LimitIterator implements \Iterator {
             $this->nextBlock();
         }
         
-        return $this->key() < $this->total;
+        return $this->_valid();
+    }
+    
+    private function _valid()
+    {
+        return $this->key() < $this->comparsion->total();
     }
     
     public function rewind()
@@ -40,7 +43,9 @@ class LimitIterator implements \Iterator {
     
     public function next()
     {   
-        if(++$this->row >= $this->blockSize)
+        $this->row += $this->transferSize;
+        
+        if($this->row >= $this->blockSize)
         {
             $this->row = 0;
             $this->block++;
@@ -49,7 +54,7 @@ class LimitIterator implements \Iterator {
     
     private function nextBlock()
     {
-        while($this->key() < $this->total)
+        while($this->_valid())
         {         
             if($this->comparsion->compare($this->key(), $this->blockSize))
             {
@@ -67,7 +72,13 @@ class LimitIterator implements \Iterator {
 
     public function current()
     {
-        return $this->comparsion->compare($this->key(), 1);
+        return $this->comparsion->compare($this->key(), $this->transferSize);
     }
+    
+    public function setComparison($comparsion)
+    {
+        $this->comparsion = $comparsion;
+    }
+
 }
 
