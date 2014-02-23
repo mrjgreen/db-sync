@@ -1,6 +1,6 @@
 <?php namespace DbSync\Sync;
 
-class BulkReplace {
+class Replace {
 
     protected $source;
     

@@ -56,11 +56,11 @@ class DbSyncCommand extends Command {
         
         if($this->getOption('sync-method') === 'replace')
         {
-            $method = '\DbSync\Sync\Replace';
+            $method = 'DbSync\Sync\Replace';
         }
         elseif($this->getOption('sync-method') === 'update')
         {
-            $method = '\DbSync\Sync\OnDuplicateKeyUpdate';
+            $method = 'DbSync\Sync\OnDuplicateKeyUpdate';
         }
         else
         {

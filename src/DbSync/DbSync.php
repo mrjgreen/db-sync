@@ -30,7 +30,7 @@ class DbSync {
         
         $this->execute = $execute;
         
-        $execute ? $this->output->alert('Executing') : $this->output->info('Dry run only... Add --execute (-e) to perform write');
+        $execute ? $this->output->alert('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
     }
     
     protected function diffAndIntersect(array $array, array $only, array $except)
