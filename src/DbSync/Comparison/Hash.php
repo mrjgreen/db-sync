@@ -8,6 +8,8 @@ class Hash extends HashAbstract {
         
     protected $primaryKey;
     
+    protected $limitKey;
+    
     protected $sourcetable;
     
     protected $desttable;
@@ -20,6 +22,13 @@ class Hash extends HashAbstract {
     
     protected $total;
     
+    private static $intTypes = array(
+        'tinyint',
+        'smallint',
+        'int',
+        'mediumint',
+        'bigint'
+    );
     
     public function __construct($source, $destination, $iterator, $hashFunction = null)
     {
@@ -30,12 +39,25 @@ class Hash extends HashAbstract {
         parent::__construct($iterator, $hashFunction);
     }
     
+    public function isInt($type)
+    {
+        foreach(static::$intTypes as $int)
+        {
+            if(strpos($type, $int) === 0)
+            {
+                return true;
+            }
+        }
+    }
+    
     public function setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where)
     {
         $this->sourcetable = $sourcetable;
         $this->desttable = $desttable;
         
         $primaryKey = $this->source->showPrimaryKey($sourcetable);
+        
+        $cols = $this->source->getColumnInfo($sourcetable);
         
         $this->primaryKey = \DbSync\implode_identifiers($primaryKey);
                 
@@ -45,7 +67,21 @@ class Hash extends HashAbstract {
         
         $this->where = $where ? ' AND ' . $where : '';
         
-        $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' WHERE 1' . $this->where);
+        if(count($primaryKey) === 1 and $this->isInt($cols[$primaryKey[0]]['Type']))
+        {
+            $this->limitKey = $primaryKey[0];
+            
+            $query = 'SELECT %s(' . $this->limitKey . ') FROM ' . $this->sourcetable . ' WHERE 1' . $this->where;
+            
+            $this->start = $this->source->fetchOne(sprintf($query, 'MIN'));
+        
+            $this->total = $this->source->fetchOne(sprintf($query, 'MAX'));
+        }
+        else {
+            $this->start = 0;
+        
+            $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' WHERE 1' . $this->where);
+        }
     }
     
     public function total()
@@ -53,17 +89,38 @@ class Hash extends HashAbstract {
         return $this->total;
     }
     
+    public function start()
+    {
+        return $this->start;
+    }
+    
+    private function compareLimit($offset, $blockSize)
+    {                                      
+        return "SELECT COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0) FROM " .
+               "(" .
+                    "SELECT $this->columns FROM %s FORCE INDEX (`PRIMARY`) WHERE 1 " .
+                    $this->where . " ".
+                    "ORDER BY $this->primaryKey " .
+                    "LIMIT $offset, $blockSize" .
+                ") as tmp";
+    }
+    
+    private function compareIndex($offset, $blockSize)
+    {
+                  
+        $endOffset = $offset + $blockSize;
+        
+        return "SELECT COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0) FROM " .
+               " %s FORCE INDEX (`PRIMARY`) WHERE " .
+               "$this->limitKey BETWEEN $offset, $endOffset " .
+               $this->where . " ".
+               "ORDER BY $this->primaryKey";
+    }
+    
     public function compare($offset, $blockSize)
     {
-                                                
-        $query = "SELECT
-COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0)
-FROM (SELECT $this->columns FROM %s
-    FORCE INDEX (`PRIMARY`) 
-    WHERE 1
-    $this->where
-    ORDER BY $this->primaryKey
-    LIMIT $offset, $blockSize) as tmp";
+                  
+        $query = $this->limitKey ? $this->compareIndex($offset, $blockSize) : $this->compareLimit($offset, $blockSize);
   
         if($this->source->fetchOne(sprintf($query,$this->sourcetable)) === $this->destination->fetchOne(sprintf($query,$this->desttable)))
         {

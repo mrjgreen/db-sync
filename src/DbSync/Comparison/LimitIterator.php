@@ -4,9 +4,9 @@ class LimitIterator implements \Iterator {
     
     protected $blockSize;
     
-    protected $block = 0;
+    protected $block;
         
-    protected $row = 0;
+    protected $row;
         
     protected $comparsion;
     
@@ -38,7 +38,7 @@ class LimitIterator implements \Iterator {
     {
         $this->row = 0;
         
-        return $this->block = 0;
+        return $this->block = $this->comparsion->start();
     }
     
     public function next()
