@@ -1,6 +1,14 @@
 db-sync
 =======
 
+### Installation
+
+Via composer
+
+~~~
+
+~~~
+
 ~~~
 Usage: bin/sync  source destination
 
