@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "4841dfc1f83bfb44197a7c9f6edb076a",
+    "hash": "bbd4e8534793a2bbec5381add5b32f01",
     "packages": [
         {
             "name": "joegreen0991/dbal",
@@ -66,11 +66,8 @@
                     "Command.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "description": "Command component based on laravel's",
-            "support": {
-                "source": "https://github.com/joegreen0991/php-cli/tree/master",
-                "issues": "https://github.com/joegreen0991/php-cli/issues"
-            },
             "time": "2014-02-22 10:20:37"
         },
         {

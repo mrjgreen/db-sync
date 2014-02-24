@@ -8,7 +8,9 @@ class Hash extends HashAbstract {
         
     protected $primaryKey;
     
-    protected $table;
+    protected $sourcetable;
+    
+    protected $desttable;
             
     protected $syncColumns;
     
@@ -28,11 +30,12 @@ class Hash extends HashAbstract {
         parent::__construct($iterator, $hashFunction);
     }
     
-    public function setTable($table, $comparisonColumns, $syncColumns, $where)
+    public function setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where)
     {
-        $this->table = $table;
+        $this->sourcetable = $sourcetable;
+        $this->desttable = $desttable;
         
-        $primaryKey = $this->source->showPrimaryKey($table);
+        $primaryKey = $this->source->showPrimaryKey($sourcetable);
         
         $this->primaryKey = \DbSync\implode_identifiers($primaryKey);
                 
@@ -42,7 +45,7 @@ class Hash extends HashAbstract {
         
         $this->where = $where ? ' AND ' . $where : '';
         
-        $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->table . ' WHERE 1' . $this->where);
+        $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' WHERE 1' . $this->where);
     }
     
     public function total()
@@ -55,19 +58,19 @@ class Hash extends HashAbstract {
                                                 
         $query = "SELECT
 COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0)
-FROM (SELECT $this->columns FROM $this->table
+FROM (SELECT $this->columns FROM %s
     FORCE INDEX (`PRIMARY`) 
     WHERE 1
     $this->where
     ORDER BY $this->primaryKey
     LIMIT $offset, $blockSize) as tmp";
   
-        if($this->source->fetchOne($query) === $this->destination->fetchOne($query))
+        if($this->source->fetchOne(sprintf($query,$this->sourcetable)) === $this->destination->fetchOne(sprintf($query,$this->desttable)))
         {
             return false;
         }
         
-        return "SELECT $this->syncColumns FROM $this->table WHERE 1 $this->where ORDER BY $this->primaryKey LIMIT $offset, $blockSize";
+        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE 1 $this->where ORDER BY $this->primaryKey LIMIT $offset, $blockSize";
     }
 }
 

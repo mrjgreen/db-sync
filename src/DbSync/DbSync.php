@@ -51,31 +51,31 @@ class DbSync {
         
         foreach($tables as $table)
         {
-            $this->compareTable($table, $onlySync, $exceptSync, $onlyComparison, $exceptComparison, $where);
+            $this->compareTable($table, $table, $onlySync, $exceptSync, $onlyComparison, $exceptComparison, $where);
         }
     }
     
-    public function compareTable($table, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
+    public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
     {        
-        $this->output->info("Table: " . $table);
+        $this->output->info("Table: " . $sourcetable . ' => ' . $desttable);
                         
-        $syncColumns = $this->diffAndIntersect($this->source->getColumnNames($table), $onlySync, $exceptSync);
+        $syncColumns = $this->diffAndIntersect($this->source->getColumnNames($sourcetable), $onlySync, $exceptSync);
                 
         $comparisonColumns = $this->diffAndIntersect($syncColumns, $onlyComparison, $exceptComparison);
 
-        $this->comparison->setTable($table, $comparisonColumns, $syncColumns, $where);
+        $this->comparison->setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where);
                 
-        foreach($this->comparison as $row => $result)
+        foreach($this->comparison as $row => $select)
         {            
-            if($result) 
+            if($select) 
             {            
-                $this->output->info("\tMismatch found in table: " . $table . ' Row: ' . $row . ' Select: ' . $result);
+                $this->output->info("\tMismatch found in table: " . $sourcetable . ' => ' . $desttable . ' Row: ' . $row . ' Select: ' . $select);
                 
                 if($this->execute)
                 {
                     $this->output->info("\tExecuted");
                     
-                    $this->sync->sync($table, $result);
+                    $this->sync->sync($desttable, $select);
                 }
             }
             
