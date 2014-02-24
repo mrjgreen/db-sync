@@ -3,11 +3,20 @@ db-sync
 
 ### Installation
 
-Via composer
+via composer - add the package to the require section in your composer.json file:
 
-~~~
+    "require" : {    
+        "joegreen0991/config"   : "dev-master"
+    }
 
-~~~
+Use the phar archive
+
+    wget https://github.com/joegreen0991/db-sync/raw/master/build/db-sync.phar -O ~/Downloads/db-sync
+    chmod -a+x ~/Downloads/db-sync
+    
+Call directly
+
+    ~/Downloads/db-sync source destination --options
 
 ~~~
 Usage: bin/sync  source destination
