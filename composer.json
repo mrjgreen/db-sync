@@ -9,12 +9,6 @@
          "files" : ["src/functions.php"]
     },
     "bin" : ["bin/sync"],
-    "repositories" : [
-        {
-            "url" : "http://github.com/joegreen0991/php-cli",
-            "type" : "vcs"
-        }
-    ],
     "scripts": {
         "post-autoload-dump": [
                 "php build/createphar.php"
