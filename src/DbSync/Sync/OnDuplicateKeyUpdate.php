@@ -1,17 +1,6 @@
 <?php namespace DbSync\Sync;
 
-class OnDuplicateKeyUpdate {
-    
-    protected $source;
-    
-    protected $destination;
-    
-    public function __construct($source, $destination)
-    {
-        $this->source = $source;
-        
-        $this->destination = $destination;
-    }
+class OnDuplicateKeyUpdate extends SyncAbstract {
     
     public function sync($table, $select)
     {

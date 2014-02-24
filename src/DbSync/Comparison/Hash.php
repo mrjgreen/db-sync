@@ -9,9 +9,7 @@ class Hash extends HashAbstract {
     protected $primaryKey;
     
     protected $table;
-        
-    protected $comparisonColumns;
-    
+            
     protected $syncColumns;
     
     protected $columns;
@@ -34,13 +32,13 @@ class Hash extends HashAbstract {
     {
         $this->table = $table;
         
-        $this->primaryKey = $this->source->showPrimaryKey($table);
+        $primaryKey = $this->source->showPrimaryKey($table);
         
-        $this->comparisonColumns = $comparisonColumns;
+        $this->primaryKey = \DbSync\implode_identifiers($primaryKey);
+                
+        $this->syncColumns = \DbSync\implode_identifiers($syncColumns);
         
-        $this->syncColumns = $syncColumns;
-        
-        $this->columns = array_unique(array_merge($this->primaryKey, $comparisonColumns));
+        $this->columns = \DbSync\implode_identifiers(array_unique(array_merge($primaryKey, $comparisonColumns)));
         
         $this->where = $where ? ' AND ' . $where : '';
         
@@ -54,31 +52,22 @@ class Hash extends HashAbstract {
     
     public function compare($offset, $blockSize)
     {
-        $orderString = '`' . implode($this->primaryKey, '`,`') . '`';
-        
-        $colsString = '`' . implode($this->columns, '`,`') . '`';
-        
-        $syncColsString = '`' . implode($this->columns, '`,`') . '`';
-                                
+                                                
         $query = "SELECT
-        COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $colsString)) AS UNSIGNED)), 10, 16)), 0) AS crc
-        FROM (SELECT $colsString FROM $this->table
-        FORCE INDEX (`PRIMARY`) 
-        WHERE 1
-        $this->where
-        ORDER BY $orderString
-        LIMIT $offset, $blockSize) as tmp";
-                        
-        $sourceResult = $this->source->fetch($query);
-        
-        $destResult = $this->destination->fetch($query);
-
-        if($sourceResult === $destResult)
+COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0)
+FROM (SELECT $this->columns FROM $this->table
+    FORCE INDEX (`PRIMARY`) 
+    WHERE 1
+    $this->where
+    ORDER BY $this->primaryKey
+    LIMIT $offset, $blockSize) as tmp";
+  
+        if($this->source->fetchOne($query) === $this->destination->fetchOne($query))
         {
             return false;
         }
         
-        return "SELECT $syncColsString FROM $this->table WHERE 1 $this->where ORDER BY $orderString LIMIT $offset, $blockSize";
+        return "SELECT $this->syncColumns FROM $this->table WHERE 1 $this->where ORDER BY $this->primaryKey LIMIT $offset, $blockSize";
     }
 }
 

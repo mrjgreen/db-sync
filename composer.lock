@@ -3,8 +3,49 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "d78d7211f16b9409c503cb360e1d5723",
+    "hash": "4841dfc1f83bfb44197a7c9f6edb076a",
     "packages": [
+        {
+            "name": "joegreen0991/dbal",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/joegreen0991/dbal.git",
+                "reference": "dc7ed427a85f3435c4be976b4dc9bcd1833ec05a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/joegreen0991/dbal/zipball/dc7ed427a85f3435c4be976b4dc9bcd1833ec05a",
+                "reference": "dc7ed427a85f3435c4be976b4dc9bcd1833ec05a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Dbal": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joe Green",
+                    "email": "joe.green0991@gmail.com"
+                }
+            ],
+            "description": "Database Abstraction Layer for laravel four",
+            "keywords": [
+                "Abstraction Layer",
+                "database",
+                "dbal"
+            ],
+            "time": "2014-02-23 23:36:24"
+        },
         {
             "name": "joegreen0991/php-cli",
             "version": "dev-master",
@@ -85,6 +126,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "joegreen0991/php-cli": 20,
+        "joegreen0991/dbal": 20,
         "psr/log": 20
     },
     "platform": [

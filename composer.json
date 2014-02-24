@@ -23,6 +23,7 @@
     "minimum-stability": "dev",
     "require" : {
        "joegreen0991/php-cli" : "dev-master",
+       "joegreen0991/dbal" : "dev-master",
        "psr/log" : "dev-master"
     }
 }

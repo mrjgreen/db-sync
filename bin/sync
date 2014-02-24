@@ -18,7 +18,7 @@ class DbSyncCommand extends Command {
     {
         return array(
             array('charset',null,self::REQUIRED, 'The charset to use with PDO connections'),
-            array('chunk-size', 's' ,self::REQUIRED, 'The comparion hash block size (number of rows)', 1000),
+            array('chunk-size', 'h' ,self::REQUIRED, 'The comparion hash block size (number of rows)', 1000),
             array('columns','c',self::REQUIRED, 'Specify a subset of the sync columns to use in the block compariosn hash'),
             array('execute', 'e' ,self::VALUE_NONE, 'Perform the data write on non-matching blocks', false),
             array('foreign-key-checks', null ,self::OPTIONAL, 'Enable foreign key checks when writing data (SET FOREIGN_KEY_CHECKS=1)', true),
@@ -29,11 +29,11 @@ class DbSyncCommand extends Command {
             array('password', 'p' ,self::REQUIRED, 'The password for the specified user'),
             array('sync-columns', null ,self::REQUIRED, 'The columns to compare and sync'),
             array('sync-method', null ,self::REQUIRED, 'The method used to write rows: replace, update. NB replace will fill missing sync columns with defaults. Use update if this is not desired behavior', 'replace'),
-            array('tables', null ,self::REQUIRED, 'The tables to sync'),
-            array('transfer-size', 't' ,self::REQUIRED, 'The number of rows to transfer at once from non-matching blocks', 50),
+            array('tables', 't' ,self::REQUIRED, 'The tables to sync'),
+            array('transfer-size', 's' ,self::REQUIRED, 'The number of rows to transfer at once from non-matching blocks', 50),
             array('unique-checks', null ,self::REQUIRED, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
             array('user', 'u' ,self::REQUIRED, 'The name of the user to connect with'),
-            array('where', null ,self::REQUIRED, 'A WHERE clause to apply against the tables'),
+            array('where', 'w' ,self::REQUIRED, 'A WHERE clause to apply against the tables'),
         );
     }
     
@@ -50,9 +50,9 @@ class DbSyncCommand extends Command {
         
         list($sourceOptions, $destOptions) = $this->parsePdoOptions(array($this->getArgument('source'), $this->getArgument('destination')), $this->getOption('user'), $this->getOption('password'));
 
-        $source = DbSync\Dbal\Db::make($sourceOptions);
+        $source = Dbal\Db::make($sourceOptions);
         
-        $destination = DbSync\Dbal\Db::make($destOptions);
+        $destination = Dbal\Db::make($destOptions);
         
         if($this->getOption('sync-method') === 'replace')
         {
@@ -84,7 +84,7 @@ class DbSyncCommand extends Command {
                 $this->csvOption('ignore-sync-columns'),
                 $this->csvOption('columns'),
                 $this->csvOption('ignore-columns'),
-                $this->csvOption('where'));
+                $this->getOption('where'));
         
     }
     

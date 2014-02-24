@@ -1,6 +1,9 @@
 <?php namespace DbSync;
 
 use Psr\Log\LoggerInterface;
+use DbSync\Sync\SyncInterface;
+use DbSync\Comparison\HashAbstract;
+use Dbal\Db;
 
 class DbSync {
     
@@ -16,11 +19,11 @@ class DbSync {
     
     protected $execute;
         
-    public function __construct($execute, $sourceOptions, $destOptions , $syncObject, $comparisonObject, LoggerInterface $output)
+    public function __construct($execute, Db $source, Db $destination , SyncInterface $syncObject, HashAbstract $comparisonObject, LoggerInterface $output)
     {        
-        $this->source = $sourceOptions;
+        $this->source = $source;
         
-        $this->destination = $destOptions;
+        $this->destination = $destination;
                         
         $this->comparison = $comparisonObject;
                 
@@ -36,8 +39,8 @@ class DbSync {
     protected function diffAndIntersect(array $array, array $only, array $except)
     {
         $only and $array = array_intersect($array, $only);
-        
-        $except and $array = array_diff($array, $except);
+                
+        $except and $array = array_intersect($array, $except);
         
         return $array;
     }
@@ -73,10 +76,6 @@ class DbSync {
                     $this->output->info("\tExecuted");
                     
                     $this->sync->sync($table, $result);
-                }
-                else
-                {
-                    $this->output->info("\tDry run");
                 }
             }
             
