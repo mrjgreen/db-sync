@@ -32,12 +32,45 @@ Usage: bin/sync  source destination
 Source and Destination DSN should be in the format `user:password@host:database`
  > NB. The user:password section is optional if the user/password credentials are the same on both the source and destination. In this case you can specify the credentials using the --user="" and --password="" options
 
-Example:
+Example - sync all tables on database1 to database2 on a different host:
 
 ~~~~
-
-# bin/sync user:password@sourcehost:dbname user:password@desthosthost:dbname
 
 bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2
 
 ~~~~
+
+Example - sync only two tables:
+
+~~~~
+
+bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --tables="users,pages"
+
+~~~~
+
+Example - sync all but one table:
+
+~~~~
+
+bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --ignore-tables="users"
+
+~~~~
+
+Example - sync one table and only use the `updated_at` to perform the hash checks (NB. The primary key will also be used in all hash checks to determine missing rows):
+
+~~~~
+
+bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --ignore-tables="users" --columns="updated_at"
+
+~~~~
+
+Example - sync only two columns from one table and only use the `updated_at` to perform the hash checks.
+
+> NB If the `--sync-columns` option is specified, your `--columns` option must only contain columns which are present in the `--sync-columns` option. IE. you must sync all columns you use in the hash check. An exception will be thrown if there are columns present in --columns which are not set to sync.
+
+~~~~
+
+bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --tables="users" --sync-columns="name,email,password,updated_at" --columns="updated_at"
+
+~~~~
+
