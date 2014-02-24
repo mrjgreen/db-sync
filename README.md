@@ -1,6 +1,10 @@
 db-sync
 =======
 
+## WARNING - This package overwrites data in database tables. Use with extreme caution and back up databases before running the command against them.
+
+### Always perform a dry run first before specifying the --execute option.
+
 ### Installation
 
 Via composer - add the package to the require section in your composer.json file:
