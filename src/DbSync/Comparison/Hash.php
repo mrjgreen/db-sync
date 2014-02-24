@@ -112,22 +112,33 @@ class Hash extends HashAbstract {
         
         return "SELECT COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0) FROM " .
                " %s FORCE INDEX (`PRIMARY`) WHERE " .
-               "$this->limitKey BETWEEN $offset, $endOffset " .
+               "$this->limitKey BETWEEN $offset AND $endOffset " .
                $this->where . " ".
                "ORDER BY $this->primaryKey";
     }
     
-    public function compare($offset, $blockSize)
+    private function selectLimit($offset, $blockSize)
     {
-                  
+        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE 1 $this->where ORDER BY $this->primaryKey LIMIT $offset, $blockSize";
+    }
+    
+    private function selectIndex($offset, $blockSize)
+    {
+        $endOffset = $offset + $blockSize;
+        
+        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE $this->limitKey BETWEEN $offset AND $endOffset  $this->where ORDER BY $this->primaryKey";
+    }
+    
+    public function compare($offset, $blockSize)
+    {      
         $query = $this->limitKey ? $this->compareIndex($offset, $blockSize) : $this->compareLimit($offset, $blockSize);
-  
+
         if($this->source->fetchOne(sprintf($query,$this->sourcetable)) === $this->destination->fetchOne(sprintf($query,$this->desttable)))
         {
             return false;
         }
         
-        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE 1 $this->where ORDER BY $this->primaryKey LIMIT $offset, $blockSize";
+        return $this->limitKey ? $this->selectIndex($offset, $blockSize) : $this->selectLimit($offset, $blockSize);
     }
 }
 

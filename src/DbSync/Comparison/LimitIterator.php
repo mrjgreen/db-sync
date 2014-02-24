@@ -48,7 +48,7 @@ class LimitIterator implements \Iterator {
         if($this->row >= $this->blockSize)
         {
             $this->row = 0;
-            $this->block++;
+            $this->block += $this->blockSize;
         }
     }
     
@@ -61,13 +61,13 @@ class LimitIterator implements \Iterator {
                 return;
             }
             
-            $this->block++;
+            $this->block += $this->blockSize;
         }
     }
     
     public function key()
     {        
-        return $this->block * $this->blockSize + $this->row;
+        return $this->block + $this->row;
     }
 
     public function current()
