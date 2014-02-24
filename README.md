@@ -11,12 +11,18 @@ via composer - add the package to the require section in your composer.json file
 
 Use the phar archive
 
-    wget https://github.com/joegreen0991/db-sync/raw/master/build/db-sync.phar -O ~/Downloads/db-sync
-    chmod -a+x ~/Downloads/db-sync
+    wget https://github.com/joegreen0991/db-sync/raw/master/build/db-sync.phar -O db-sync.phar
+    chmod a+x db-sync.phar
     
 Call directly
 
-    ~/Downloads/db-sync source destination --options
+    ./db-sync.phar source destination --options
+    
+Optionally make the command available globally
+
+    sudo mv db-sync.phar /usr/bin/db-sync
+    #Call from anywhere using:
+    db-sync source destination --options
 
 ~~~
 Usage: bin/sync  source destination
