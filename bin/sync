@@ -75,6 +75,13 @@ class DbSyncCommand extends Command {
         
         $logger = new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet'));
         
+        set_exception_handler(function (\Exception $exception) use($logger)
+        {
+            $logger->critical($exception->getMessage());
+            
+            $logger->debug($exception->getTraceAsString());
+        });
+        
         $sync = new DbSync\DbSync($this->getOption('execute'), $source, $destination, $syncObject, $comparisonObject, $logger);
                 
         $sync->compareDatabase(

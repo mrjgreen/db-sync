@@ -62,6 +62,11 @@ class DbSync {
         $syncColumns = $this->diffAndIntersect($this->source->getColumnNames($sourcetable), $onlySync, $exceptSync);
                 
         $comparisonColumns = $this->diffAndIntersect($syncColumns, $onlyComparison, $exceptComparison);
+        
+        if(count($comparisonColumns) === 0)
+        {
+            throw new \Exception("No columns to left to compare. Please ensure you have not set the --columns option to a non-existent field name or a value not selected to sync");
+        }
 
         $this->comparison->setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where);
                 
@@ -69,7 +74,8 @@ class DbSync {
         {            
             if($select) 
             {            
-                $this->output->info("\tMismatch found in table: " . $sourcetable . ' => ' . $desttable . ' Row: ' . $row . ' Select: ' . $select);
+                $this->output->info("\tMismatch found in table: " . $sourcetable . ' => ' . $desttable . "\tRow: " . $row);
+                $this->output->debug("\tSelect: " . $select);
                 
                 if($this->execute)
                 {
