@@ -4,10 +4,7 @@ class OnDuplicateKeyUpdate extends SyncAbstract {
     
     public function sync($table, $select)
     {
-        foreach($this->source->query($select) as $row)
-        {
-            $this->destination->insertOnDuplicateKeyUpdate($table, $row);
-        }
+        $this->destination->multiInsertOnDuplicateKeyUpdate($table, $this->source->query($select));
     }
 }
 

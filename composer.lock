@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/joegreen0991/dbal.git",
-                "reference": "dc7ed427a85f3435c4be976b4dc9bcd1833ec05a"
+                "reference": "af98986dae62118ac12d6bc961e9d078e2ec155e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joegreen0991/dbal/zipball/dc7ed427a85f3435c4be976b4dc9bcd1833ec05a",
-                "reference": "dc7ed427a85f3435c4be976b4dc9bcd1833ec05a",
+                "url": "https://api.github.com/repos/joegreen0991/dbal/zipball/af98986dae62118ac12d6bc961e9d078e2ec155e",
+                "reference": "af98986dae62118ac12d6bc961e9d078e2ec155e",
                 "shasum": ""
             },
             "require": {
@@ -44,7 +44,7 @@
                 "database",
                 "dbal"
             ],
-            "time": "2014-02-23 23:36:24"
+            "time": "2014-02-25 17:54:18"
         },
         {
             "name": "joegreen0991/php-cli",

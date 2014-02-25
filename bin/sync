@@ -28,7 +28,7 @@ class DbSyncCommand extends Command {
             array('ignore-tables', null ,self::REQUIRED, 'Tables to ignore when syncing'),
             array('password', 'p' ,self::REQUIRED, 'The password for the specified user'),
             array('sync-columns', null ,self::REQUIRED, 'The columns to compare and sync'),
-            array('sync-method', null ,self::REQUIRED, 'The method used to write rows: replace, update. NB replace will fill missing sync columns with defaults. Use update if this is not desired behavior', 'replace'),
+            array('sync-method', null ,self::REQUIRED, 'The method used to write rows: update, replace. NB replace will fill missing sync columns with defaults. Use update if this is not desired behavior', 'update'),
             array('tables', 't' ,self::REQUIRED, 'The tables to sync'),
             array('transfer-size', 's' ,self::REQUIRED, 'The number of rows to transfer at once from non-matching blocks', 50),
             array('unique-checks', null ,self::REQUIRED, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
