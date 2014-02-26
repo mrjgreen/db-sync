@@ -4,7 +4,7 @@ class Replace extends SyncAbstract {
     
     protected function write($table, \PDOStatement $stmt)
     {
-        $this->destination->multiReplace($table, $stmt);
+        return $this->destination->multiReplace($table, $stmt)->rowCount();
     }
 }
 

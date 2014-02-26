@@ -19,7 +19,7 @@ abstract class SyncAbstract implements SyncInterface {
         
         if($stmt->rowCount() > 0)
         {
-            $this->write($table, $stmt);
+            return $this->write($table, $stmt);
         }
     }
     

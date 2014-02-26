@@ -79,9 +79,9 @@ class DbSync {
                 
                 if($this->execute)
                 {
-                    $this->output->info("\tExecuted");
+                    $rows = $this->sync->sync($desttable, $select);
                     
-                    $this->sync->sync($desttable, $select);
+                    $this->output->info("\tExecuted. Rows written: " . intval($rows));
                 }
             }
             
