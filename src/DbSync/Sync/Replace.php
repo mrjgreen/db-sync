@@ -1,15 +1,10 @@
 <?php namespace DbSync\Sync;
 
 class Replace extends SyncAbstract {
-
-    public function sync($table, $select)
+    
+    protected function write($table, \PDOStatement $stmt)
     {
-        $query = $this->source->query($select);
-        
-        if($query->rowCount() > 0)
-        {
-            $this->destination->multiReplace($table, $query);
-        }
+        $this->destination->multiReplace($table, $stmt);
     }
 }
 

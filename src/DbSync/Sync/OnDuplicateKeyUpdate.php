@@ -2,9 +2,9 @@
 
 class OnDuplicateKeyUpdate extends SyncAbstract {
     
-    public function sync($table, $select)
+    protected function write($table, \PDOStatement $stmt)
     {
-        $this->destination->multiInsertOnDuplicateKeyUpdate($table, $this->source->query($select));
+        $this->destination->multiInsertOnDuplicateKeyUpdate($table, $stmt);
     }
 }
 
