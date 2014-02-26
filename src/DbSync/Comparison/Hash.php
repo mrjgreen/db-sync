@@ -113,8 +113,7 @@ class Hash extends HashAbstract {
         return "SELECT COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0) FROM " .
                " %s FORCE INDEX (`PRIMARY`) WHERE " .
                "$this->limitKey BETWEEN $offset AND $endOffset " .
-               $this->where . " ".
-               "ORDER BY $this->primaryKey";
+               $this->where;
     }
     
     private function selectLimit($offset, $blockSize)
@@ -126,7 +125,7 @@ class Hash extends HashAbstract {
     {
         $endOffset = $offset + $blockSize;
         
-        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE $this->limitKey BETWEEN $offset AND $endOffset  $this->where ORDER BY $this->primaryKey";
+        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE $this->limitKey BETWEEN $offset AND $endOffset  $this->where";
     }
     
     public function compare($offset, $blockSize)
