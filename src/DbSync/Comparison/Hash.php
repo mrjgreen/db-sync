@@ -61,7 +61,7 @@ class Hash extends HashAbstract {
         
         $this->primaryKey = \DbSync\implode_identifiers($primaryKey);
                 
-        $this->syncColumns = \DbSync\implode_identifiers($syncColumns);
+        $this->syncColumns = \DbSync\implode_identifiers(array_unique(array_merge($primaryKey, $syncColumns)));
         
         $this->columns = \DbSync\implode_identifiers(array_unique(array_merge($primaryKey, $comparisonColumns)));
         
