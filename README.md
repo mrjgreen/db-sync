@@ -10,7 +10,7 @@ db-sync
 Via composer - add the package to the require section in your composer.json file:
 
     "require" : {    
-        "joegreen0991/config"   : "dev-master"
+        "joegreen0991/db-sync"   : "dev-master"
     }
 
 Or use the phar archive directly
