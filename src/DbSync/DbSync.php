@@ -40,7 +40,7 @@ class DbSync {
     {
         $only and $array = array_intersect($array, $only);
                 
-        $except and $array = array_intersect($array, $except);
+        $except and $array = array_diff($array, $except);
         
         return $array;
     }
