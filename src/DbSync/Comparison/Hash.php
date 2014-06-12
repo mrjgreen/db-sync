@@ -93,10 +93,43 @@ class Hash extends HashAbstract {
     {
         return $this->start;
     }
+
+    private function buildFullComparison($hash)
+    {
+        return "COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $hash . " AS UNSIGNED)), 10, 16)), 0)";
+    }
+
+    private function buildComparisonHash()
+    {
+        $cols = "CONCAT_WS('#', $this->columns)";
+
+        $hash = $this->getHashFunction();
+
+        if($hash === self::HASH_CRC32)
+        {
+            return $this->buildFullComparison("$hash($cols)");
+        }
+
+        $byteSizes = array(
+            self::HASH_MD5 => 1,
+            self::HASH_SHA1 => 3,
+        );
+
+        $i = $byteSizes[$hash];
+        $str = array();
+
+        while($i--)
+        {
+            $start = (16 * $i) + 1;
+            $str[] = $this->buildFullComparison("CONV(SUBSTR($hash($cols),$start,16),16,10)");
+        }
+
+        return "CONCAT(" . implode(',', $str) . ")";
+    }
     
     private function compareLimit($offset, $blockSize)
-    {                                      
-        return "SELECT COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0) FROM " .
+    {
+        return "SELECT " . $this->buildComparisonHash() . " FROM " .
                "(" .
                     "SELECT $this->columns FROM %s FORCE INDEX (`PRIMARY`) WHERE 1 " .
                     $this->where . " ".
@@ -107,10 +140,9 @@ class Hash extends HashAbstract {
     
     private function compareIndex($offset, $blockSize)
     {
-                  
         $endOffset = $offset + $blockSize;
         
-        return "SELECT COALESCE(LOWER(CONV(BIT_XOR(CAST(" . $this->getHashFunction() . "(CONCAT_WS('#', $this->columns)) AS UNSIGNED)), 10, 16)), 0) FROM " .
+        return "SELECT " . $this->buildComparisonHash() . " FROM " .
                " %s FORCE INDEX (`PRIMARY`) WHERE " .
                "$this->limitKey BETWEEN $offset AND $endOffset " .
                $this->where;
