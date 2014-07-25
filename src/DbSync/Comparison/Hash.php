@@ -66,22 +66,26 @@ class Hash extends HashAbstract {
         $this->columns = \DbSync\implode_identifiers(array_unique(array_merge($primaryKey, $comparisonColumns)));
         
         $this->where = $where ? ' AND ' . $where : '';
-        
-        if(count($primaryKey) === 1 and $this->isInt($cols[$primaryKey[0]]['Type']))
+
+        foreach($primaryKey as $key)
         {
-            $this->limitKey = $primaryKey[0];
-            
-            $query = 'SELECT %s(' . $this->limitKey . ') FROM ' . $this->sourcetable . ' WHERE 1' . $this->where;
-            
-            $this->start = $this->source->fetchOne(sprintf($query, 'MIN'));
-        
-            $this->total = $this->source->fetchOne(sprintf($query, 'MAX'));
+            if($this->isInt($cols[$key]['Type']))
+            {
+                $this->limitKey = $key;
+
+                $query = 'SELECT %s(' . $this->limitKey . ') FROM ' . $this->sourcetable . ' WHERE 1' . $this->where;
+
+                $this->start = $this->source->fetchOne(sprintf($query, 'MIN'));
+
+                $this->total = $this->source->fetchOne(sprintf($query, 'MAX'));
+
+                return;
+            }
         }
-        else {
-            $this->start = 0;
-        
-            $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' WHERE 1' . $this->where);
-        }
+
+        $this->start = 0;
+
+        $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' WHERE 1' . $this->where);
     }
     
     public function total()
