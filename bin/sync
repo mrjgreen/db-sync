@@ -17,7 +17,7 @@ class DbSyncCommand extends Command {
     public function getOptions()
     {
         return array(
-            array('charset',null,self::REQUIRED, 'The charset to use with PDO connections'),
+            array('charset',null,self::REQUIRED, 'The charset to use with PDO connections', 'utf8'),
             array('chunk-size', 'h' ,self::REQUIRED, 'The comparion hash block size (number of rows)', 1000),
             array('columns','c',self::REQUIRED, 'Specify a subset of the sync columns to use in the block compariosn hash'),
             array('execute', 'e' ,self::VALUE_NONE, 'Perform the data write on non-matching blocks', false),
@@ -42,6 +42,8 @@ class DbSyncCommand extends Command {
         return array(
             array('source', self::REQUIRED, 'The source DSN: host:database OR user:password@host:database'),
             array('destination', self::REQUIRED, 'The destination DSN: host:database OR user:password@host:database'),
+            array('tablesource', self::OPTIONAL, 'The source tablename. Leave blank to use other options'),
+            array('tabledest', self::OPTIONAL, 'The destination tablename. Leave blank to use other options'),
         );
     }
     
@@ -83,8 +85,31 @@ class DbSyncCommand extends Command {
         });
         
         $sync = new DbSync\DbSync($this->getOption('execute'), $source, $destination, $syncObject, $comparisonObject, $logger);
-                
-        $sync->compareDatabase(
+
+        if($this->getArgument('tablesource'))
+        {
+            if(!$this->getArgument('tabledest'))
+            {
+                throw new \Exception("You must supply both a source and destination if you have chosen to supply the table to sync manually.");
+            }
+
+            if($this->getArgument('tablesource') == $this->getArgument('tabledest'))
+            {
+                throw new \Exception("The source and destination must not be the same if you have chosen to supply the table to sync manually.");
+            }
+
+            $sync->compareTable(
+                $this->getArgument('tablesource'),
+                $this->getArgument('tabledest'),
+                $this->csvOption('sync-columns'),
+                $this->csvOption('ignore-sync-columns'),
+                $this->csvOption('columns'),
+                $this->csvOption('ignore-columns'),
+                $this->getOption('where'));
+
+        }else
+        {
+            $sync->compareDatabase(
                 $this->csvOption('tables'),
                 $this->csvOption('ignore-tables'),
                 $this->csvOption('sync-columns'),
@@ -92,6 +117,9 @@ class DbSyncCommand extends Command {
                 $this->csvOption('columns'),
                 $this->csvOption('ignore-columns'),
                 $this->getOption('where'));
+        }
+
+
         
     }
     

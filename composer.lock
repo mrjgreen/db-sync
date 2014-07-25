@@ -1,7 +1,8 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
     "hash": "bbd4e8534793a2bbec5381add5b32f01",
     "packages": [
@@ -11,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/joegreen0991/dbal.git",
-                "reference": "dcc88eddb6d9a3a526937066bc06168a1a4cef65"
+                "reference": "8fd2913a6e6148b90ff02bf86766f59f6f25b282"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joegreen0991/dbal/zipball/dcc88eddb6d9a3a526937066bc06168a1a4cef65",
-                "reference": "dcc88eddb6d9a3a526937066bc06168a1a4cef65",
+                "url": "https://api.github.com/repos/joegreen0991/dbal/zipball/8fd2913a6e6148b90ff02bf86766f59f6f25b282",
+                "reference": "8fd2913a6e6148b90ff02bf86766f59f6f25b282",
                 "shasum": ""
             },
             "require": {
@@ -44,7 +45,7 @@
                 "database",
                 "dbal"
             ],
-            "time": "2014-02-25 18:08:19"
+            "time": "2014-07-23 15:04:40"
         },
         {
             "name": "joegreen0991/php-cli",
