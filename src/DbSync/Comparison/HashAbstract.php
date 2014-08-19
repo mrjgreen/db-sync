@@ -18,7 +18,7 @@ abstract class HashAbstract implements \IteratorAggregate {
     
     public function __construct($iterator, $hashFunction = null)
     {
-        $this->hashFunction = $hashFunction ? : self::HASH_CRC32;
+        $this->hashFunction = $hashFunction ? : self::HASH_MD5;
         
         $this->iterator = $iterator;
         
