@@ -1,5 +1,5 @@
 {
-    "name": "joegreen0991/db-sync",
+    "name": "mrjgreen/db-sync",
     "type": "library",
     "description": "Command component based on laravel's",
     "autoload": {
