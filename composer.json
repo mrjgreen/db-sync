@@ -4,7 +4,8 @@
     "description": "Command component based on laravel's",
     "autoload": {
         "psr-0": { 
-            "DbSync": "src"
+            "DbSync": "src",
+            "Dbal": "src"
          },
          "files" : ["src/functions.php"]
     },
@@ -17,7 +18,6 @@
     "minimum-stability": "dev",
     "require" : {
        "mrjgreen/php-cli" : "1.*",
-       "mrjgreen/dbal" : "1.*",
        "psr/log" : "dev-master"
     }
 }

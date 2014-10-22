@@ -4,61 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bbd4e8534793a2bbec5381add5b32f01",
+    "hash": "061acc2d1135014b38a16c4b4945961b",
     "packages": [
         {
-            "name": "joegreen0991/dbal",
-            "version": "dev-master",
+            "name": "mrjgreen/php-cli",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/joegreen0991/dbal.git",
-                "reference": "8fd2913a6e6148b90ff02bf86766f59f6f25b282"
+                "url": "https://github.com/mrjgreen/php-cli.git",
+                "reference": "37f341959d94a347aa2db852d1c7b686f9746c29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joegreen0991/dbal/zipball/8fd2913a6e6148b90ff02bf86766f59f6f25b282",
-                "reference": "8fd2913a6e6148b90ff02bf86766f59f6f25b282",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Dbal": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Joe Green",
-                    "email": "joe.green0991@gmail.com"
-                }
-            ],
-            "description": "Database Abstraction Layer for laravel four",
-            "keywords": [
-                "Abstraction Layer",
-                "database",
-                "dbal"
-            ],
-            "time": "2014-07-23 15:04:40"
-        },
-        {
-            "name": "joegreen0991/php-cli",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/joegreen0991/php-cli.git",
-                "reference": "ed20427f9b37fd02eb853b3c1b38c495a94327ac"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/joegreen0991/php-cli/zipball/ed20427f9b37fd02eb853b3c1b38c495a94327ac",
-                "reference": "ed20427f9b37fd02eb853b3c1b38c495a94327ac",
+                "url": "https://api.github.com/repos/mrjgreen/php-cli/zipball/37f341959d94a347aa2db852d1c7b686f9746c29",
+                "reference": "37f341959d94a347aa2db852d1c7b686f9746c29",
                 "shasum": ""
             },
             "type": "library",
@@ -69,7 +28,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Command component based on laravel's",
-            "time": "2014-02-22 10:20:37"
+            "time": "2014-10-20 08:36:15"
         },
         {
             "name": "psr/log",
@@ -115,22 +74,13 @@
             "time": "2014-01-18 15:33:09"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "joegreen0991/php-cli": 20,
-        "joegreen0991/dbal": 20,
         "psr/log": 20
     },
-    "platform": [
-
-    ],
-    "platform-dev": [
-
-    ]
+    "prefer-stable": false,
+    "platform": [],
+    "platform-dev": []
 }
