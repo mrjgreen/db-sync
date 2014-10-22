@@ -16,8 +16,8 @@
     },
     "minimum-stability": "dev",
     "require" : {
-       "mrjgreen/php-cli" : "dev-master",
-       "mrjgreen/dbal" : "dev-master",
+       "mrjgreen/php-cli" : "1.*",
+       "mrjgreen/dbal" : "1.*",
        "psr/log" : "dev-master"
     }
 }
