@@ -62,15 +62,11 @@ class Connection {
 
         $stmt = $this->getConnection()->prepare($sql);
 
-        $start = microtime(true);
-
         try {
             $stmt->execute($bind);
         }catch(\PDOException $e){
             throw new \PDOException($e->getMessage() . "\n QUERY: " . $sql . "\n BIND: " . var_export($bind,1));
         }
-
-        $time = microtime(true) - $start;
 
         return $stmt;
     }
