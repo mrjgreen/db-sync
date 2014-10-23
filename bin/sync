@@ -52,39 +52,18 @@ class DbSyncCommand extends Command {
         
         list($sourceOptions, $destOptions) = $this->parsePdoOptions(array($this->getArgument('source'), $this->getArgument('destination')), $this->getOption('user'), $this->getOption('password'));
 
-        $source = Dbal\Db::make($sourceOptions);
-        
-        $destination = Dbal\Db::make($destOptions);
-        
-        if($this->getOption('sync-method') === 'replace')
-        {
-            $method = 'DbSync\Sync\Replace';
-        }
-        elseif($this->getOption('sync-method') === 'update')
-        {
-            $method = 'DbSync\Sync\OnDuplicateKeyUpdate';
-        }
-        else
-        {
-            throw new Exception('Invalid sync method: ' . $this->getOption('sync-method'));
-        }
-        
-        $syncObject = new $method($source, $destination, $this->getOption('unique-checks'), $this->getOption('foreign-key-checks'));
-        
-        $iterator = new DbSync\Comparison\LimitIterator($this->getOption('chunk-size'), $this->getOption('transfer-size'));
-        $comparisonObject = new DbSync\Comparison\Hash($source, $destination, $iterator, $this->getOption('function'));
-        
-        
         $logger = new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet'));
-        
+
         set_exception_handler(function (\Exception $exception) use($logger)
         {
             $logger->critical($exception->getMessage());
-            
+
             $logger->debug($exception->getTraceAsString());
         });
-        
-        $sync = new DbSync\DbSync($this->getOption('execute'), $source, $destination, $syncObject, $comparisonObject, $logger);
+
+        $sync = \DbSync\DbSync::make($this->getOption('execute'), $sourceOptions, $destOptions, $this->getOption('sync-method'), $this->getOption('function'), $this->getOption('chunk-size'), $this->getOption('transfer-size'));
+
+        $sync->setLogger($logger);
 
         if($this->getArgument('tablesource'))
         {

@@ -1,5 +1,7 @@
 <?php namespace DbSync\Comparison;
 
+use DbSync\Connection;
+
 class Hash extends HashAbstract {
     
     protected $source;
@@ -30,7 +32,7 @@ class Hash extends HashAbstract {
         'bigint'
     );
     
-    public function __construct($source, $destination, $iterator, $hashFunction = null)
+    public function __construct(Connection $source, Connection $destination, $iterator, $hashFunction = null)
     {
         $this->source = $source;
         

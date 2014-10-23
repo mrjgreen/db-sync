@@ -1,12 +1,14 @@
 <?php namespace DbSync\Sync;
 
+use DbSync\Connection;
+
 abstract class SyncAbstract implements SyncInterface {
     
     protected $source;
     
     protected $destination;
     
-    public function __construct($source, $destination)
+    public function __construct(Connection $source, Connection $destination)
     {
         $this->source = $source;
         

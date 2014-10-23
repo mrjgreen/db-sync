@@ -1,16 +1,15 @@
 <?php namespace DbSync;
 
+use DbSync\Comparison\Hash;
+use DbSync\Comparison\LimitIterator;
 use Psr\Log\LoggerInterface;
 use DbSync\Sync\SyncInterface;
 use DbSync\Comparison\HashAbstract;
-use Dbal\Db;
 
 class DbSync {
     
     protected $source;
-    
-    protected $destination;
-                
+
     protected $comparison;
     
     protected $sync;
@@ -19,21 +18,24 @@ class DbSync {
     
     protected $execute;
         
-    public function __construct($execute, Db $source, Db $destination , SyncInterface $syncObject, HashAbstract $comparisonObject, LoggerInterface $output)
+    public function __construct($execute, Connection $source, SyncInterface $syncObject, HashAbstract $comparisonObject, LoggerInterface $output = null)
     {        
         $this->source = $source;
-        
-        $this->destination = $destination;
-                        
+
         $this->comparison = $comparisonObject;
                 
         $this->sync = $syncObject;
                 
-        $this->output = $output;
+        $this->output = $output ?: new Logger();
         
         $this->execute = $execute;
         
         $execute ? $this->output->alert('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
+    }
+
+    public function setLogger(LoggerInterface $log)
+    {
+        $this->output = $log;
     }
     
     protected function diffAndIntersect(array $array, array $only, array $except)
@@ -86,5 +88,49 @@ class DbSync {
             }
             
         }
+    }
+
+    private static function buildConnection($connection)
+    {
+        if($connection instanceof \PDO)
+        {
+            $connection = new Connection($connection);
+        }
+        elseif(is_array($connection))
+        {
+            $connection = Connection::make($connection);
+        }
+        elseif(!$connection instanceof Connection)
+        {
+            throw new \InvalidArgumentException("Argument must be an instance of PDO, DbSync\\Connection or a valid connection config array");
+        }
+
+        return $connection;
+    }
+
+    public static function make($execute, $source, $destination, $syncMethod = 'replace', $comparisonFunction = 'SHA1', $chunkSize = 1000, $transferSize = 50)
+    {
+        $source = self::buildConnection($source);
+        $destination = self::buildConnection($destination);
+
+        if($syncMethod === 'replace')
+        {
+            $method = 'DbSync\Sync\Replace';
+        }
+        elseif($syncMethod === 'update')
+        {
+            $method = 'DbSync\Sync\OnDuplicateKeyUpdate';
+        }
+        else
+        {
+            throw new Exception('Invalid sync method: ' . $syncMethod);
+        }
+
+        $syncObject = new $method($source, $destination);
+
+        $iterator = new LimitIterator($chunkSize, $transferSize);
+        $comparisonObject = new Hash($source, $destination, $iterator, $comparisonFunction);
+
+        return new static($execute, $source, $syncObject, $comparisonObject);
     }
 }
