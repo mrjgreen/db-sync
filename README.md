@@ -1,4 +1,4 @@
-db-sync
+DbSync
 =======
 
 ## WARNING - This package overwrites data in database tables. Use with extreme caution and back up databases before running the command against them.
