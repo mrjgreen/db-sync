@@ -1,11 +1,10 @@
 {
     "name": "mrjgreen/db-sync",
     "type": "library",
-    "description": "Command component based on laravel's",
+    "description": "Efficient MySQL comparision and sync utility",
     "autoload": {
         "psr-0": { 
-            "DbSync": "src",
-            "Dbal": "src"
+            "DbSync": "src"
          },
          "files" : ["src/functions.php"]
     },
@@ -15,7 +14,6 @@
                 "php build/createphar.php"
         ]
     },
-    "minimum-stability": "dev",
     "require" : {
        "mrjgreen/php-cli" : "1.*",
        "psr/log" : "*"
