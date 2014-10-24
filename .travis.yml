@@ -7,7 +7,7 @@ php:
 
 
 before_script:
-  - composer install
+  - composer install --dev
 
 script:
  - mkdir -p build/logs
