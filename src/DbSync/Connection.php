@@ -2,11 +2,13 @@
 
 use PDO;
 
-class EmptyDataset extends \RuntimeException {
+class EmptyDataset extends \RuntimeException
+{
 
 }
 
-class Connection {
+class Connection
+{
 
     /**
      * An array to store the column names of tables
@@ -27,7 +29,8 @@ class Connection {
     const INSERT_REPLACE = 'REPLACE';
 
 
-    public function __construct(PDO $connection) {
+    public function __construct(PDO $connection)
+    {
 
         $this->_connection = $connection;
 
@@ -37,7 +40,8 @@ class Connection {
      * Get the PDO connection or fetch the default one if it doesn't exist
      * @return \PDO
      */
-    function getConnection() {
+    function getConnection()
+    {
         return $this->_connection;
     }
 
@@ -45,7 +49,8 @@ class Connection {
      * Get the PDO connection or fetch the default one if it doesn't exist
      * @return \PDO
      */
-    function setConnection(PDO $connection) {
+    function setConnection(PDO $connection)
+    {
         $this->_connection = $connection;
     }
 
@@ -56,7 +61,8 @@ class Connection {
      * @param mixed $bind
      * @return \PDOStatement
      */
-    public function query($sql, $bind = array()) {
+    public function query($sql, $bind = array())
+    {
 
         is_array($bind) or $bind = array($bind);
 
@@ -64,8 +70,8 @@ class Connection {
 
         try {
             $stmt->execute($bind);
-        }catch(\PDOException $e){
-            throw new \PDOException($e->getMessage() . "\n QUERY: " . $sql . "\n BIND: " . var_export($bind,1));
+        } catch (\PDOException $e) {
+            throw new \PDOException($e->getMessage() . "\n QUERY: " . $sql . "\n BIND: " . var_export($bind, 1));
         }
 
         return $stmt;
@@ -77,7 +83,8 @@ class Connection {
      * @param mixed $bind
      * @return mixed
      */
-    public function fetch($sql, $bind = array()) {
+    public function fetch($sql, $bind = array())
+    {
         return $this->query($sql, $bind)->fetch();
     }
 
@@ -87,7 +94,8 @@ class Connection {
      * @param mixed $bind
      * @return mixed
      */
-    public function fetchNumeric($sql, $bind = array()) {
+    public function fetchNumeric($sql, $bind = array())
+    {
         return $this->query($sql, $bind)->fetch(PDO::FETCH_NUM);
     }
 
@@ -97,7 +105,8 @@ class Connection {
      * @param mixed $bind
      * @return array
      */
-    public function fetchOne($sql, $bind = array()) {
+    public function fetchOne($sql, $bind = array())
+    {
         return $this->query($sql, $bind)->fetchColumn();
     }
 
@@ -107,7 +116,8 @@ class Connection {
      * @param mixed $table A string table name, or an array of string tablenames
      * @return array  An array containing the column names from the given table(s)
      */
-    public function getColumnNames($table) {
+    public function getColumnNames($table)
+    {
         if (is_array($table)) {
             $columnNames = array();
             foreach ($table as $t) {
@@ -125,7 +135,8 @@ class Connection {
      * @param mixed $table A string table name, or an array of string tablenames
      * @return array  An array containing the column names from the given table(s)
      */
-    public function getColumnInfo($table) {
+    public function getColumnInfo($table)
+    {
         if (!array_key_exists($table, $this->_tableCache)) {
             $cols = array();
             foreach ($this->query('SHOW COLUMNS FROM ' . $table) as $col) {
@@ -140,14 +151,14 @@ class Connection {
     {
         $from = $database ? ' FROM ' . $database : '';
 
-        return array_map(function($obj){
+        return array_map(function ($obj) {
             return $obj[0];
         }, $this->query('SHOW TABLES' . $from)->fetchAll(PDO::FETCH_NUM));
     }
 
     public function showPrimaryKey($table)
     {
-        $fields = array_filter($this->getColumnInfo($table), function($item){
+        $fields = array_filter($this->getColumnInfo($table), function ($item) {
             return $item['Key'] === 'PRI';
         });
 
@@ -163,7 +174,8 @@ class Connection {
      * @return \PDOStatement
      * @throws DbException
      */
-    protected function doMultiInsert($table, $data, $type = self::INSERT){
+    protected function doMultiInsert($table, $data, $type = self::INSERT)
+    {
 
         $count = $data instanceof \PDOStatement ? $data->rowCount() : count($data);
 
@@ -176,8 +188,7 @@ class Connection {
         $bind = array();
         $i = 0;
 
-        foreach($data as $row)
-        {
+        foreach ($data as $row) {
             $cols or $cols = array_keys($row);
             $subq = '';
             foreach ($row as $col => $v) {
@@ -199,7 +210,8 @@ class Connection {
      * @return \PDOStatement
      * @throws DbException
      */
-    public function multiInsert($table, $data){
+    public function multiInsert($table, $data)
+    {
         return $this->doMultiInsert($table, $data);
     }
 
@@ -211,7 +223,8 @@ class Connection {
      * @return \PDOStatement
      * @throws DbException
      */
-    public function multiInsertIgnore($table, $data){
+    public function multiInsertIgnore($table, $data)
+    {
         return $this->doMultiInsert($table, $data, self::INSERT_IGNORE);
     }
 
@@ -223,7 +236,8 @@ class Connection {
      * @return \PDOStatement
      * @throws DbException
      */
-    public function multiReplace($table, $data){
+    public function multiReplace($table, $data)
+    {
         return $this->doMultiInsert($table, $data, self::INSERT_REPLACE);
     }
 
@@ -234,7 +248,8 @@ class Connection {
      * @return \PDOStatement
      * @throws DbException
      */
-    public function multiInsertOnDuplicateKeyUpdate($table, $data) {
+    public function multiInsertOnDuplicateKeyUpdate($table, $data)
+    {
         $count = $data instanceof \PDOStatement ? $data->rowCount() : count($data);
 
         if (!$count) {
@@ -245,8 +260,8 @@ class Connection {
         $qs = '';
         $bind = array();
 
-        foreach($data as $row)
-        {   $qs .= '(';
+        foreach ($data as $row) {
+            $qs .= '(';
             foreach ($row as $col => $v) {
                 $qs .= '?,';
                 $bind[] = $row[$col];
@@ -255,7 +270,7 @@ class Connection {
             $qs = trim($qs, ',') . '),';
         }
 
-        $colsValues = array_map(function($col){
+        $colsValues = array_map(function ($col) {
             return $col . ' = VALUES(' . $col . ')';
         }, $cols);
 
@@ -267,20 +282,21 @@ class Connection {
         return $this->query($sql, $bind);
     }
 
-    public static function make(array $config){
+    public static function make(array $config)
+    {
 
         extract($config);
 
         $db = isset($database) ? ";dbname={$database}" : '';
 
         $defaults = array(
-            PDO::ATTR_ERRMODE 		=> PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE 	=> PDO::FETCH_ASSOC,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         );
 
         $options = isset($options) ? array_replace($defaults, $options) : $defaults;
 
-        $pdo = new PDO("mysql:host={$host}$db", $user, $password, $options);
+        $pdo = new PDO("mysql:host={$host}$db", $username, $password, $options);
 
         isset($charset) and $pdo->prepare("SET NAMES '{$charset}'")->execute();
 

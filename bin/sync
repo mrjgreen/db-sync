@@ -136,11 +136,11 @@ class DbSyncCommand extends Command {
             }
             
             $dsnArray[] = array(
-                'host'       => $hostAndDb[0],
-                'database'    => $hostAndDb[1],
-                'user'  => $usernameAndPassword[0],
+                'host'      => $hostAndDb[0],
+                'database'  => $hostAndDb[1],
+                'username'  => $usernameAndPassword[0],
                 'password'  => $usernameAndPassword[1],
-                'charset' => $this->getOption('charset')
+                'charset'   => $this->getOption('charset')
             );
         }
         

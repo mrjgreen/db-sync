@@ -29,8 +29,6 @@ class DbSync {
         $this->output = $output ?: new Logger();
         
         $this->execute = $execute;
-        
-        $execute ? $this->output->alert('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
     }
 
     public function setLogger(LoggerInterface $log)
@@ -58,7 +56,9 @@ class DbSync {
     }
     
     public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
-    {        
+    {
+        $this->execute ? $this->output->alert('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
+
         $this->output->info("Table: " . $sourcetable . ' => ' . $desttable);
                         
         $syncColumns = $this->diffAndIntersect($this->source->getColumnNames($sourcetable), $onlySync, $exceptSync);
@@ -108,7 +108,7 @@ class DbSync {
         return $connection;
     }
 
-    public static function make($execute, $source, $destination, $syncMethod = 'replace', $comparisonFunction = 'SHA1', $chunkSize = 1000, $transferSize = 50)
+    public static function make($execute, $source, $destination, $syncMethod = 'update', $comparisonFunction = 'SHA1', $chunkSize = 1000, $transferSize = 50)
     {
         $source = self::buildConnection($source);
         $destination = self::buildConnection($destination);

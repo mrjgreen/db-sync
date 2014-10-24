@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "061acc2d1135014b38a16c4b4945961b",
+    "hash": "84abc4676e603833fcecda2d5acec9e4",
     "packages": [
         {
             "name": "mrjgreen/php-cli",
@@ -77,9 +77,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "psr/log": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "platform": [],
     "platform-dev": []
