@@ -1,9 +1,9 @@
 DbSync
 =======
 
-## WARNING - This package overwrites data in database tables. Use with extreme caution and back up databases before running the command against them.
+### WARNING - This package overwrites data in database tables. Use with extreme caution and back up databases before running the command against them.
 
-### Always perform a dry run first before specifying the --execute option.
+#### Always perform a dry run first before specifying the --execute option.
 
 ### What is it?
 DbSync is a tool for efficiently comparing and synchronising two or more remote database tables. 
