@@ -51,7 +51,6 @@ Usage: bin/sync  source destination
 	 --chunk-size           -h=""           The comparion hash block size (number of rows)
 	 --columns              -c=""           Specify a subset of the sync columns to use in the block compariosn hash
 	 --execute              -e              Perform the data write on non-matching blocks
-	 --foreign-key-checks                   Enable foreign key checks when writing data (SET FOREIGN_KEY_CHECKS=1)
 	 --function                             The hash function to use in the block comparison: CRC32, MD5, SHA1
 	 --ignore-columns                       Sync columns to ignore in the block compariosn hash
 	 --ignore-sync-columns                  Columns to ignore when syncing and comparing data
@@ -64,7 +63,6 @@ Usage: bin/sync  source destination
 	 					
 	 --tables               -t=""           The tables to sync
 	 --transfer-size        -s=""           The number of rows to transfer at once from non-matching blocks
-	 --unique-checks                        Enable unique key checks (SET UNIQUE_CHECKS=1).
 	 --user                 -u=""           The name of the user to connect with
 	 --where                -w=""           A WHERE clause to apply against the tables
 ~~~
