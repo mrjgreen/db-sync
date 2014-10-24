@@ -2,7 +2,7 @@ DbSync
 =======
 
 [![Build Status](https://travis-ci.org/mrjgreen/db-sync.svg?branch=master)](https://travis-ci.org/mrjgreen/db-sync)
-[![Coverage Status](https://coveralls.io/repos/mrjgreen/db-sync/badge.png)](https://coveralls.io/r/mrjgreen/db-sync)
+[![Coverage Status](https://coveralls.io/repos/mrjgreen/db-sync/badge.svg)](https://coveralls.io/r/mrjgreen/db-sync)
 
 ### WARNING - This package overwrites data in database tables. Use with extreme caution and back up databases before running the command against them.
 
