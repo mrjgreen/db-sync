@@ -19,5 +19,8 @@
     "require" : {
        "mrjgreen/php-cli" : "1.*",
        "psr/log" : "*"
+    },
+    "require-dev": {
+      "satooshi/php-coveralls": "dev-master"
     }
 }
