@@ -10,12 +10,12 @@ db-sync
 Via composer - add the package to the require section in your composer.json file:
 
     "require" : {    
-        "joegreen0991/db-sync"   : "dev-master"
+        "mrjgreen/db-sync"   : "2.*"
     }
 
 Or use the phar archive directly
 
-    wget https://github.com/joegreen0991/db-sync/raw/master/build/db-sync.phar -O db-sync.phar
+    wget https://github.com/mrjgreen/db-sync/raw/master/build/db-sync.phar -O db-sync.phar
     chmod a+x db-sync.phar
     
 Call directly
