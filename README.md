@@ -11,7 +11,7 @@ DbSync
 ### What is it?
 DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables. 
 
-In order to do this without comparing every byte of data, the tool preforms a hash (CRC, MD5 or SHA1) over a range of rows on both the source and destination tables, and compares only the hash. If a hash block (default 1000) is found to have an inconsistency, the tool starts rolling through in small chunks (default 10) doing the same has comparison but over this reduced set. If any sub block is found to have an inconsistency, the entire sub block is copied to the destination.
+In order to do this without comparing every byte of data, the tool preforms a hash (CRC, MD5 or SHA1) over a range of rows on both the source and destination tables, and compares only the hash. If a hash block (default 1000) is found to have an inconsistency, the tool starts rolling through in small chunks (default 10) doing the same hash comparison but over this reduced set. If any sub block is found to have an inconsistency, the entire sub block is copied to the destination.
 
  > NB. CRC is very fast, but hash collisions are very likely. DO NOT use CRC in situations where data integrity is required.
  
