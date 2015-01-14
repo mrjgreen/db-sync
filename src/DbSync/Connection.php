@@ -63,7 +63,6 @@ class Connection
      */
     public function query($sql, $bind = array())
     {
-
         is_array($bind) or $bind = array($bind);
 
         $stmt = $this->getConnection()->prepare($sql);
@@ -97,6 +96,14 @@ class Connection
     public function fetchNumeric($sql, $bind = array())
     {
         return $this->query($sql, $bind)->fetch(PDO::FETCH_NUM);
+    }
+
+    /**
+     *
+     */
+    public function quote($value)
+    {
+        return $this->_connection->quote($value);
     }
 
     /**

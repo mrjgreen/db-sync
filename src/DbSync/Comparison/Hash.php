@@ -23,7 +23,9 @@ class Hash extends HashAbstract {
     protected $where;
     
     protected $total;
-    
+
+    protected $start;
+
     private static $intTypes = array(
         'tinyint',
         'smallint',
@@ -75,11 +77,9 @@ class Hash extends HashAbstract {
             {
                 $this->limitKey = $key;
 
-                $query = 'SELECT %s(' . $this->limitKey . ') FROM ' . $this->sourcetable . ' WHERE 1' . $this->where;
+                $this->start = $this->getAggregateCount('MIN');
 
-                $this->start = $this->source->fetchOne(sprintf($query, 'MIN'));
-
-                $this->total = $this->source->fetchOne(sprintf($query, 'MAX'));
+                $this->total = $this->getAggregateCount('MAX');
 
                 return;
             }
@@ -88,6 +88,20 @@ class Hash extends HashAbstract {
         $this->start = 0;
 
         $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' WHERE 1' . $this->where);
+    }
+
+    private function getAggregateCount($aggregate, $above = null)
+    {
+        $where = '';
+
+        if($above)
+        {
+            $where = ' AND ' .  $this->limitKey . ' >= ' . $this->source->quote($above);
+        }
+
+        $query = 'SELECT %s(' . $this->limitKey . ') FROM ' . $this->sourcetable . ' WHERE 1' . $this->where . $where;
+
+        return $this->source->fetchOne(sprintf($query, $aggregate));
     }
     
     public function total()
@@ -131,6 +145,11 @@ class Hash extends HashAbstract {
         }
 
         return "CONCAT(" . implode(',', $str) . ")";
+    }
+
+    public function nextValidIndex($block)
+    {
+        return $this->limitKey ? ($this->getAggregateCount('MIN', $block) ?: $block) : $block;
     }
     
     private function compareLimit($offset, $blockSize)

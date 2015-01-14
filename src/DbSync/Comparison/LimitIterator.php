@@ -48,6 +48,7 @@ class LimitIterator implements \Iterator {
         if($this->row >= $this->blockSize)
         {
             $this->row = 0;
+
             $this->block += $this->blockSize;
         }
     }
@@ -61,8 +62,13 @@ class LimitIterator implements \Iterator {
                 return;
             }
 
-            $this->block += $this->blockSize;
+            $this->block = $this->nextBlockIndex();
         }
+    }
+
+    private function nextBlockIndex()
+    {
+        return $this->comparsion->nextValidIndex($this->block + $this->blockSize);
     }
 
     public function key()
