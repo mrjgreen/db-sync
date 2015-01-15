@@ -26,6 +26,8 @@ class Hash extends HashAbstract {
 
     protected $start;
 
+    protected $lastComparisonEmpty = false;
+
     private static $intTypes = array(
         'tinyint',
         'smallint',
@@ -149,7 +151,12 @@ class Hash extends HashAbstract {
 
     public function nextValidIndex($block)
     {
-        return $this->limitKey ? ($this->getAggregateCount('MIN', $block) ?: $block) : $block;
+        if($this->limitKey && $this->lastComparisonEmpty)
+        {
+            return $this->getAggregateCount('MIN', $block) ?: $block;
+        }
+
+        return $block;
     }
     
     private function compareLimit($offset, $blockSize)
@@ -189,7 +196,13 @@ class Hash extends HashAbstract {
     {      
         $query = $this->limitKey ? $this->compareIndex($offset, $blockSize) : $this->compareLimit($offset, $blockSize);
 
-        if($this->source->fetchOne(sprintf($query,$this->sourcetable)) === $this->destination->fetchOne(sprintf($query,$this->desttable)))
+        $sourceHash = $this->source->fetchOne(sprintf($query,$this->sourcetable));
+
+        $destHash = $this->destination->fetchOne(sprintf($query,$this->desttable));
+
+        $this->lastComparisonEmpty = $sourceHash ? false : true;
+
+        if($sourceHash === $destHash)
         {
             return false;
         }
