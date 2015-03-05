@@ -48,11 +48,15 @@ class DbSync {
     public function compareDatabase(array $onlyTables = array(), array $exceptTables = array(), array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
     {
         $tables = $this->diffAndIntersect($this->source->showTables(), $onlyTables, $exceptTables);
-        
+
+        $affectedRows = 0;
+
         foreach($tables as $table)
         {
-            $this->compareTable($table, $table, $onlySync, $exceptSync, $onlyComparison, $exceptComparison, $where);
+            $affectedRows += $this->compareTable($table, $table, $onlySync, $exceptSync, $onlyComparison, $exceptComparison, $where);
         }
+
+        return $affectedRows;
     }
     
     public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
@@ -71,6 +75,8 @@ class DbSync {
         }
 
         $this->comparison->setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where);
+
+        $affectedRows = 0;
                 
         foreach($this->comparison as $row => $select)
         {            
@@ -82,12 +88,15 @@ class DbSync {
                 if($this->execute)
                 {
                     $rows = $this->sync->sync($desttable, $select);
+
+                    $affectedRows += $rows;
                     
                     $this->output->info("\tExecuted. Rows written: " . intval($rows));
                 }
             }
-            
         }
+
+        return $affectedRows;
     }
 
     private static function buildConnection($connection)
