@@ -59,7 +59,7 @@ class DbSync {
         return $affectedRows;
     }
     
-    public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
+    public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null, $joinSource = null, $joinDest = null)
     {
         $this->execute ? $this->output->alert('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
 
@@ -74,7 +74,7 @@ class DbSync {
             throw new \Exception("No columns to left to compare. Please ensure you have not set the --columns option to a non-existent field name or a value not selected to sync");
         }
 
-        $this->comparison->setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where);
+        $this->comparison->setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where, $joinSource, $joinDest);
 
         $affectedRows = 0;
                 
@@ -132,7 +132,7 @@ class DbSync {
         }
         else
         {
-            throw new Exception('Invalid sync method: ' . $syncMethod);
+            throw new \InvalidArgumentException('Invalid sync method: ' . $syncMethod);
         }
 
         $syncObject = new $method($source, $destination);

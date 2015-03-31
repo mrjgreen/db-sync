@@ -21,7 +21,11 @@ class Hash extends HashAbstract {
     protected $columns;
     
     protected $where;
-    
+
+    protected $joinSource;
+
+    protected $joinDest;
+
     protected $total;
 
     protected $start;
@@ -56,7 +60,7 @@ class Hash extends HashAbstract {
         }
     }
     
-    public function setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where)
+    public function setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where, $joinSource, $joinDest)
     {
         $this->sourcetable = $sourcetable;
         $this->desttable = $desttable;
@@ -72,6 +76,10 @@ class Hash extends HashAbstract {
         $this->columns = \DbSync\implode_identifiers(array_unique(array_merge($primaryKey, $comparisonColumns)));
         
         $this->where = $where ? ' AND ' . $where : '';
+
+        $this->joinSource = $joinSource;
+
+        $this->joinDest = $joinDest;
 
         foreach($primaryKey as $key)
         {
@@ -89,7 +97,7 @@ class Hash extends HashAbstract {
 
         $this->start = 0;
 
-        $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' WHERE 1' . $this->where);
+        $this->total = $this->source->fetchOne('SELECT count(*) FROM ' . $this->sourcetable . ' ' . $this->joinSource .' WHERE 1' . $this->where);
     }
 
     private function getAggregateCount($aggregate, $above = null)
@@ -101,7 +109,7 @@ class Hash extends HashAbstract {
             $where = ' AND ' .  $this->limitKey . ' >= ' . $this->source->quote($above);
         }
 
-        $query = 'SELECT %s(' . $this->limitKey . ') FROM ' . $this->sourcetable . ' WHERE 1' . $this->where . $where;
+        $query = 'SELECT %s(' . $this->limitKey . ') FROM ' . $this->sourcetable . ' ' . $this->joinSource . ' WHERE 1' . $this->where . $where;
 
         return $this->source->fetchOne(sprintf($query, $aggregate));
     }
@@ -182,23 +190,23 @@ class Hash extends HashAbstract {
     
     private function selectLimit($offset, $blockSize)
     {
-        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE 1 $this->where ORDER BY $this->primaryKey LIMIT $offset, $blockSize";
+        return "SELECT $this->syncColumns FROM $this->sourcetable $this->joinSource WHERE 1 $this->where ORDER BY $this->primaryKey LIMIT $offset, $blockSize";
     }
     
     private function selectIndex($offset, $blockSize)
     {
         $endOffset = $offset + $blockSize;
         
-        return "SELECT $this->syncColumns FROM $this->sourcetable WHERE $this->limitKey BETWEEN $offset AND $endOffset  $this->where";
+        return "SELECT $this->syncColumns FROM $this->sourcetable $this->joinSource WHERE $this->limitKey BETWEEN $offset AND $endOffset  $this->where";
     }
     
     public function compare($offset, $blockSize)
     {      
         $query = $this->limitKey ? $this->compareIndex($offset, $blockSize) : $this->compareLimit($offset, $blockSize);
 
-        $sourceHash = $this->source->fetchOne(sprintf($query,$this->sourcetable));
+        $sourceHash = $this->source->fetchOne(sprintf($query,$this->sourcetable . ' ' . $this->joinSource));
 
-        $destHash = $this->destination->fetchOne(sprintf($query,$this->desttable));
+        $destHash = $this->destination->fetchOne(sprintf($query,$this->desttable. ' ' . $this->joinDest));
 
         $this->lastComparisonEmpty = $sourceHash ? false : true;
 
