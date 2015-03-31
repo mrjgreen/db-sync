@@ -61,7 +61,7 @@ class DbSync {
     
     public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null, $joinSource = null, $joinDest = null)
     {
-        $this->execute ? $this->output->alert('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
+        $this->execute ? $this->output->notice('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
 
         $this->output->info("Table: " . $sourcetable . ' => ' . $desttable);
                         
