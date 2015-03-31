@@ -171,7 +171,7 @@ class Hash extends HashAbstract {
     {
         return "SELECT " . $this->buildComparisonHash() . " FROM " .
                "(" .
-                    "SELECT $this->columns FROM %s FORCE INDEX (`PRIMARY`) WHERE 1 " .
+                    "SELECT $this->columns FROM %s FORCE INDEX (`PRIMARY`) %s WHERE 1 " .
                     $this->where . " ".
                     "ORDER BY $this->primaryKey " .
                     "LIMIT $offset, $blockSize" .
@@ -183,7 +183,7 @@ class Hash extends HashAbstract {
         $endOffset = $offset + $blockSize;
         
         return "SELECT " . $this->buildComparisonHash() . " FROM " .
-               " %s FORCE INDEX (`PRIMARY`) WHERE " .
+               " %s FORCE INDEX (`PRIMARY`) %s WHERE " .
                "$this->limitKey BETWEEN $offset AND $endOffset " .
                $this->where;
     }
@@ -204,9 +204,9 @@ class Hash extends HashAbstract {
     {      
         $query = $this->limitKey ? $this->compareIndex($offset, $blockSize) : $this->compareLimit($offset, $blockSize);
 
-        $sourceHash = $this->source->fetchOne(sprintf($query,$this->sourcetable . ' ' . $this->joinSource));
+        $sourceHash = $this->source->fetchOne(sprintf($query,$this->sourcetable, $this->joinSource));
 
-        $destHash = $this->destination->fetchOne(sprintf($query,$this->desttable. ' ' . $this->joinDest));
+        $destHash = $this->destination->fetchOne(sprintf($query,$this->desttable, $this->joinDest));
 
         $this->lastComparisonEmpty = $sourceHash ? false : true;
 
