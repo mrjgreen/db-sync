@@ -45,7 +45,7 @@ class DbSync {
         return $array;
     }
     
-    public function compareDatabase(array $onlyTables = array(), array $exceptTables = array(), array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null)
+    public function compareDatabase(array $onlyTables = array(), array $exceptTables = array(), array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $whereSource = null, $whereDest = null)
     {
         $tables = $this->diffAndIntersect($this->source->showTables(), $onlyTables, $exceptTables);
 
@@ -53,13 +53,13 @@ class DbSync {
 
         foreach($tables as $table)
         {
-            $affectedRows += $this->compareTable($table, $table, $onlySync, $exceptSync, $onlyComparison, $exceptComparison, $where);
+            $affectedRows += $this->compareTable($table, $table, $onlySync, $exceptSync, $onlyComparison, $exceptComparison, $whereSource, $whereDest);
         }
 
         return $affectedRows;
     }
     
-    public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $where = null, $joinSource = null, $joinDest = null)
+    public function compareTable($sourcetable, $desttable, array $onlySync = array(), array $exceptSync = array(), array $onlyComparison = array(), array $exceptComparison = array(), $whereSource = null, $whereDest = null)
     {
         $this->execute ? $this->output->notice('Executing') : $this->output->info('Dry run only. Add --execute (-e) to perform write');
 
@@ -74,7 +74,7 @@ class DbSync {
             throw new \Exception("No columns to left to compare. Please ensure you have not set the --columns option to a non-existent field name or a value not selected to sync");
         }
 
-        $this->comparison->setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $where, $joinSource, $joinDest);
+        $this->comparison->setTable($sourcetable, $desttable, $comparisonColumns, $syncColumns, $whereSource, $whereDest);
 
         $affectedRows = 0;
                 
