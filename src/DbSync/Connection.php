@@ -67,13 +67,33 @@ class Connection
 
         $stmt = $this->getConnection()->prepare($sql);
 
-        try {
-            $stmt->execute($bind);
-        } catch (\PDOException $e) {
-            throw new \PDOException($e->getMessage() . "\n QUERY: " . $sql . "\n BIND: " . var_export($bind, 1));
-        }
+        $lockWaitRetries = 5;
 
-        return $stmt;
+        do {
+            try {
+                $stmt->execute($bind);
+
+                return $stmt;
+            } catch (\PDOException $e) {
+
+                if(!$this->exceptionIsLockWaitTimeout($e) || !$lockWaitRetries--)
+                {
+                    throw new \PDOException($e->getMessage() . "\n QUERY: " . $sql . "\n BIND: " . var_export($bind, 1));
+                }
+
+                usleep(rand(1000,5000));
+            }
+        } while (1);
+
+    }
+
+    /**
+     * @param \PDOException $e
+     * @return bool
+     */
+    private function exceptionIsLockWaitTimeout(\PDOException $e)
+    {
+        return strpos($e->getMessage(), 'try restarting transaction') !== false;
     }
 
     /**
