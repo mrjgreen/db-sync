@@ -31,7 +31,7 @@ class LimitIterator implements \Iterator {
 
     private function _valid()
     {
-        return $this->key() < $this->comparsion->total();
+        return $this->key() <= $this->comparsion->total();
     }
 
     public function rewind()
