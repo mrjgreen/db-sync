@@ -116,8 +116,8 @@ bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database
 
 ###Roadmap
 
- [ ] 100% test coverage via full stack integration tests
- [ ] Allow option to skip duplicate key errors
- [ ] Allow option to delete data from target where not present on the source
- [ ] Use symfony console command fo sync
- [ ] Offer combination with other tool for full fast outfile based replacement (offer as initial sync?)
+ * [ ] 100% test coverage via full stack integration tests
+ * [ ] Allow option to skip duplicate key errors
+ * [ ] Allow option to delete data from target where not present on the source
+ * [ ] Use symfony console command fo sync
+ * [ ] Offer combination with other tool for full fast outfile based replacement (offer as initial sync?)
