@@ -226,6 +226,8 @@ class Connection
             $qs .= ('(' . rtrim($subq, ',') . ')' . (++$i !== $count ? ',' : ''));
         }
 
+        $cols = array_map(array($this, 'quoteIdentifier'), $cols);
+
         return $this->query($type . ' INTO ' . $table . ' (' . implode(',', $cols) . ') VALUES ' . $qs, $bind);
     }
 
@@ -297,16 +299,27 @@ class Connection
             $qs = trim($qs, ',') . '),';
         }
 
+        $cols = array_map(array($this, 'quoteIdentifier'), $cols);
+
         $colsValues = array_map(function ($col) {
             return $col . ' = VALUES(' . $col . ')';
         }, $cols);
 
         // Build the statement
         $sql = 'INSERT INTO ' . $table . ' 
-		(' . implode(', ', $cols) . ') VALUES ' . trim($qs, ',') . '	
+		(' . implode(', ', $cols) . ') VALUES ' . trim($qs, ',') . '
 		ON DUPLICATE KEY UPDATE ' . implode(', ', $colsValues);
 
         return $this->query($sql, $bind);
+    }
+
+    /**
+     * @param $column
+     * @return string
+     */
+    private function quoteIdentifier($column)
+    {
+        return '`' . $column . '`';
     }
 
     public static function make(array $config)
