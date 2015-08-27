@@ -67,7 +67,7 @@ Options:
 
 ##### Example 1
 
-Sync table web.customers from one host to another:
+Sync the table `web.customers` from one host to another:
 
 ~~~~
 bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers
@@ -75,7 +75,7 @@ bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers
 
 ##### Example 2
 
-Sync table web.customers from one host to another using different credentials:
+Sync the table `web.customers` from one host to another using different credentials:
 
 ~~~~
 bin/sync --user root --password mypass --target.user admin --target.password password 127.0.0.1 111.222.3.44 web.customers:
@@ -83,7 +83,9 @@ bin/sync --user root --password mypass --target.user admin --target.password pas
 
 ##### Example 3
 
-Sync only the `email` and `name` fields from table web.customers (NB. The primary key will automatically be included in the column set):
+Sync only the `email` and `name` fields from the table `web.customers`:
+
+ > NB. The primary key will automatically be included in the column set
 
 ~~~~
 bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
@@ -91,7 +93,7 @@ bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c e
 
 ##### Example 4
 
-Sync every column except for the `updated_at` fields from table web.customers:
+Sync every column except for the `updated_at` fields from the table `web.customers`:
 
 ~~~~
 bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
