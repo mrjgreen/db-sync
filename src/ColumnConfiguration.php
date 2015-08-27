@@ -15,6 +15,8 @@ class ColumnConfiguration {
 
     public function getIntersection(array $columns)
     {
+        $columns = array_values($columns);
+
         if(count($this->only))
         {
             $columns = array_intersect($columns, $this->only);

@@ -1,151 +1,23 @@
 #!/usr/bin/env php
-<?php
+<?php namespace DbSync\Command;
 
-include __DIR__ . '/../vendor/autoload.php';
-
-set_error_handler(function ($level, $message, $file, $line, $context)
+$packageAutoloaders = array(
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../../autoload.php',
+);
+foreach($packageAutoloaders as $autoloader)
 {
-    if (error_reporting() & $level)
+    if(is_file($autoloader))
     {
-        throw new ErrorException($message, $level, 0, $file, $line);
-    }
-});
-
-
-class DbSyncCommand extends Command {
-    
-    public function getOptions()
-    {
-        return array(
-            array('charset',null,self::REQUIRED, 'The charset to use with PDO connections', 'utf8'),
-            array('chunk-size', 'h' ,self::REQUIRED, 'The comparion hash block size (number of rows)', 1000),
-            array('columns','c',self::REQUIRED, 'Specify a subset of the sync columns to use in the block compariosn hash'),
-            array('execute', 'e' ,self::VALUE_NONE, 'Perform the data write on non-matching blocks', false),
-            array('foreign-key-checks', null ,self::OPTIONAL, 'Enable foreign key checks when writing data (SET FOREIGN_KEY_CHECKS=1)', true),
-            array('function', null ,self::REQUIRED, 'The hash function to use in the block comparison: CRC32, MD5, SHA1', 'CRC32'),
-            array('ignore-columns', null ,self::REQUIRED, 'Sync columns to ignore in the block compariosn hash'),
-            array('ignore-sync-columns', null ,self::REQUIRED, 'Columns to ignore when syncing and comparing data'),
-            array('ignore-tables', null ,self::REQUIRED, 'Tables to ignore when syncing'),
-            array('password', 'p' ,self::REQUIRED, 'The password for the specified user'),
-            array('sync-columns', null ,self::REQUIRED, 'The columns to compare and sync'),
-            array('sync-method', null ,self::REQUIRED, 'The method used to write rows: update, replace. NB replace will fill missing sync columns with defaults. Use update if this is not desired behavior', 'update'),
-            array('tables', 't' ,self::REQUIRED, 'The tables to sync'),
-            array('transfer-size', 's' ,self::REQUIRED, 'The number of rows to transfer at once from non-matching blocks', 50),
-            array('unique-checks', null ,self::REQUIRED, 'Enable unique key checks (SET UNIQUE_CHECKS=1).', true),
-            array('user', 'u' ,self::REQUIRED, 'The name of the user to connect with'),
-            array('where', 'w' ,self::REQUIRED, 'A WHERE clause to apply against the tables'),
-        );
-    }
-    
-    public function getArguments()
-    {
-        return array(
-            array('source', self::REQUIRED, 'The source DSN: host:database OR user:password@host:database'),
-            array('destination', self::REQUIRED, 'The destination DSN: host:database OR user:password@host:database'),
-            array('tablesource', self::OPTIONAL, 'The source tablename. Leave blank to use other options'),
-            array('tabledest', self::OPTIONAL, 'The destination tablename. Leave blank to use other options'),
-        );
-    }
-    
-    public function fire()
-    {
-        
-        list($sourceOptions, $destOptions) = $this->parsePdoOptions(array($this->getArgument('source'), $this->getArgument('destination')), $this->getOption('user'), $this->getOption('password'));
-
-        $logger = new DbSync\Logger($this->getOption('verbose'), $this->getOption('quiet'));
-
-        set_exception_handler(function (\Exception $exception) use($logger)
-        {
-            $logger->critical($exception->getMessage());
-
-            $logger->debug($exception->getTraceAsString());
-        });
-
-        $sync = \DbSync\DbSync::make($this->getOption('execute'), $sourceOptions, $destOptions, $this->getOption('sync-method'), $this->getOption('function'), $this->getOption('chunk-size'), $this->getOption('transfer-size'));
-
-        $sync->setLogger($logger);
-
-        if($this->getArgument('tablesource'))
-        {
-            if(!$this->getArgument('tabledest'))
-            {
-                throw new \Exception("You must supply both a source and destination if you have chosen to supply the table to sync manually.");
-            }
-
-            if($this->getArgument('tablesource') == $this->getArgument('tabledest'))
-            {
-                throw new \Exception("The source and destination must not be the same if you have chosen to supply the table to sync manually.");
-            }
-
-            $sync->compareTable(
-                $this->getArgument('tablesource'),
-                $this->getArgument('tabledest'),
-                $this->csvOption('sync-columns'),
-                $this->csvOption('ignore-sync-columns'),
-                $this->csvOption('columns'),
-                $this->csvOption('ignore-columns'),
-                $this->getOption('where'));
-
-        }else
-        {
-            $sync->compareDatabase(
-                $this->csvOption('tables'),
-                $this->csvOption('ignore-tables'),
-                $this->csvOption('sync-columns'),
-                $this->csvOption('ignore-sync-columns'),
-                $this->csvOption('columns'),
-                $this->csvOption('ignore-columns'),
-                $this->getOption('where'));
-        }
-
-
-        
-    }
-    
-    protected function csvOption($optionName)
-    {
-        $option = trim($this->getOption($optionName));
-        
-        return array_filter(explode(',',$option));
-    }
-    
-    protected function parsePdoOptions($dsns, $defaultUser = null, $defaultPassword = null)
-    {
-        $dsnArray = array();
-        
-        foreach($dsns as $key => $dsn)
-        {
-            $parts = explode('@', $dsn, 2);
-            
-            if(count($parts) < 2)
-            {
-                if(!$defaultUser)
-                {
-                    throw new \Exception('Please provide a user in the dsn arguments or using the --user option');
-                }
-                
-                array_unshift($parts, $defaultUser . ':' . $defaultPassword);
-            }
-            
-            $usernameAndPassword = explode(':', $parts[0]);
-            $hostAndDb = explode(':', $parts[1]);
-
-            if(count($usernameAndPassword) !== 2 || count($hostAndDb) !== 2)
-            {
-                throw new \Exception('Invalid DSN string for host argument ' . $key . '. Please provide the format user:pass@host:database');
-            }
-            
-            $dsnArray[] = array(
-                'host'      => $hostAndDb[0],
-                'database'  => $hostAndDb[1],
-                'username'  => $usernameAndPassword[0],
-                'password'  => $usernameAndPassword[1],
-                'charset'   => $this->getOption('charset')
-            );
-        }
-        
-        return $dsnArray;
+        include $autoloader;
     }
 }
 
-DbSyncCommand::createFromCliArgs()->fire();
+use Symfony\Component\Console\Application;
+use Symfony\Component\Debug\ErrorHandler;
+ErrorHandler::register();
+
+$application = new Application('dbsync');
+$application->add(new SyncCommand());
+$application->run();
