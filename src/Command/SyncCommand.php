@@ -77,6 +77,8 @@ class SyncCommand extends Command
     {
         $this->output = $output;
 
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
+
         $this->input = $input;
 
         if(($config = $this->input->getOption('config')) && is_file($config)){
@@ -126,15 +128,22 @@ class SyncCommand extends Command
             $targetTable = $sourceTable;
         }
 
-        $sync = new DbSync();
-
         $logger = new ConsoleLogger($this->output);
+
+        $dryRun = $this->input->getOption('execute') ? false : true;
+
+        if($dryRun)
+        {
+            $logger->notice("Dry run only. No data will be written to target.");
+        }
+
+        $sync = new DbSync($dryRun);
 
         $sync->setLogger($logger);
 
-        $source->setLogger($logger);
+        $sync->setBlockSize($this->input->getOption('block-size'));
 
-        $source->enableQueryLog();
+        $sync->setTransferSize($this->input->getOption('transfer-size'));
 
         $rows = $sync->sync(
             new Table($source, $sourceDatabase, $sourceTable),

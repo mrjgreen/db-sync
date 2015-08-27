@@ -13,10 +13,14 @@ class DbSync {
 
     private $blockSize = 1024;
 
-    private $copySize = 4;
+    private $transferSize = 4;
 
-    public function __construct(HashInterface $hashStrategy = null)
+    private $dryRun;
+
+    public function __construct($dryRun = false, HashInterface $hashStrategy = null)
     {
+        $this->dryRun = $dryRun;
+
         $this->hashStrategy = $hashStrategy ?: new ShaHash();
 
         $this->logger = new NullLogger();
@@ -31,12 +35,34 @@ class DbSync {
     }
 
     /**
-     * @param $max
-     * @param $min
+     * @param $blockSize
      */
-    public function setBlockSize($max, $min)
+    public function setBlockSize($blockSize)
     {
+        $this->validatePower2Int($blockSize);
 
+        $this->blockSize = $blockSize;
+    }
+
+    /**
+     * @param $transferSize
+     */
+    public function setTransferSize($transferSize)
+    {
+        $this->validatePower2Int($transferSize);
+
+        $this->transferSize = $transferSize;
+    }
+
+    /**
+     * @param $int
+     */
+    private function validatePower2Int($int)
+    {
+        if($int != (int)$int || $int < 1 || (($int & ($int - 1)) !== 0))
+        {
+            throw new \InvalidArgumentException("Argument must be a positive, power of 2 integer. '$int' given.");
+        }
     }
 
     /**
@@ -77,7 +103,7 @@ class DbSync {
 
                 $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$currentBlockSize'");
 
-                if($currentBlockSize == $this->copySize) {
+                if($currentBlockSize == $this->transferSize) {
                     $rowCount += $this->copy($source, $destination, $syncColumns, $index, $currentBlockSize);
                 }
                 else{
@@ -123,6 +149,13 @@ class DbSync {
         $count = $rows->rowCount();
 
         $this->logger->debug("Copying '$count' rows from '$source' => '$destination' for block size '$blockSize'");
+
+        if($this->dryRun)
+        {
+            $this->logger->info("DRY RUN: would copy '$count' rows from '$source' => '$destination' for block size '$blockSize'");
+
+            return 0;
+        }
 
         $rowCount = $destination->insert($rows, $columns);
 
