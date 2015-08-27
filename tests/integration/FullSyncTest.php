@@ -7,7 +7,7 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->utilityDb = \DbSync\Connection::make(include __DIR__ . '/config.php');
+        $this->utilityDb = (new \Database\Connectors\ConnectionFactory())->make(include __DIR__ . '/config.php');
 
         $this->createTestDatabases();
     }
@@ -19,15 +19,11 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
     private function getDbSync()
     {
-        $config = include __DIR__ . '/config.php';
-
-        $sync = \DbSync\DbSync::make(true, $config, $config, 'update', DbSync\Comparison\Hash::HASH_MD5, 10, 2);
-
         $logger = new \DbSync\Logger(false, true);
 
-        $sync->setLogger($logger);
+        $dbSync = new \DbSync\DbSync($logger);
 
-        return $sync;
+        return $dbSync;
     }
 
     public function testItCorrectlySyncsFullData()
@@ -36,7 +32,12 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
         $sync = $this->getDbSync();
 
-        $sync->compareTable($sourceDb . '.customers', $targetDb . '.customers');
+        $connection = (new \Database\Connectors\ConnectionFactory())->make(include __DIR__ . '/config.php');
+
+        $source = new \DbSync\Table($connection, $sourceDb, 'customers');
+        $target = new \DbSync\Table($connection, $targetDb, 'customers');
+
+        $sync->sync($source, $target);
 
         $this->compareTableReal($sourceDb . '.customers', $targetDb . '.customers');
     }
@@ -49,7 +50,12 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
         $sync = $this->getDbSync();
 
-        $sync->compareTable($sourceDb . '.customers', $targetDb . '.customers');
+        $connection = (new \Database\Connectors\ConnectionFactory())->make(include __DIR__ . '/config.php');
+
+        $source = new \DbSync\Table($connection, $sourceDb, 'customers');
+        $target = new \DbSync\Table($connection, $targetDb, 'customers');
+
+        $sync->sync($source, $target);
 
         $this->compareTableReal($sourceDb . '.customers', $targetDb . '.customers');
     }
@@ -62,7 +68,12 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
         $cols = array('customerName', 'addressLine1', 'postalCode', 'salesRepEmployeeNumber');
 
-        $sync->compareTable($sourceDb . '.customers', $targetDb . '.customers',$cols );
+        $connection = (new \Database\Connectors\ConnectionFactory())->make(include __DIR__ . '/config.php');
+
+        $source = new \DbSync\Table($connection, $sourceDb, 'customers');
+        $target = new \DbSync\Table($connection, $targetDb, 'customers');
+
+        $sync->sync($source, $target, new \DbSync\ColumnConfiguration($cols, array()));
 
         $this->compareTableReal($sourceDb . '.customers', $targetDb . '.customers',  '*', false);
 

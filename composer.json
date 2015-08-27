@@ -5,18 +5,14 @@
     "autoload": {
         "psr-0": { 
             "DbSync": "src"
-         },
-         "files" : ["src/functions.php"]
+         }
     },
     "bin" : ["bin/sync"],
-    "scripts": {
-        "post-autoload-dump": [
-                "php build/createphar.php"
-        ]
-    },
     "require" : {
        "mrjgreen/php-cli" : "1.*",
-       "psr/log" : "*"
+       "psr/log" : "*",
+        "symfony/console": "^2.7",
+        "mrjgreen/database": "^2.4"
     },
     "require-dev": {
       "satooshi/php-coveralls": "dev-master"
