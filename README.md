@@ -11,10 +11,8 @@ DbSync
 ### What is it?
 DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables. 
 
-In order to do this without comparing every byte of data, the tool preforms a hash (CRC, MD5 or SHA1) over a range of rows on both the source and destination tables, and compares only the hash. If a hash block (default 1000) is found to have an inconsistency, the tool starts rolling through in small chunks (default 10) doing the same hash comparison but over this reduced set. If any sub block is found to have an inconsistency, the entire sub block is copied to the destination.
+In order to do this without comparing every byte of data, the tool preforms a checksum (SHA1) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency, the tool performs a binary search through the data performing the checksum at each level until it finds the inconsistency.
 
- > NB. CRC is very fast, but hash collisions are very likely. DO NOT use CRC in situations where data integrity is required.
- 
 ### Notes About Deletion
 DbSync will NOT delete rows from the destination that no longer exist on the source. This will lead to DbSync always trying to copy blocks which contain deleted rows. I intend to release a version which rectifies this with a --delete option.
 
@@ -23,93 +21,72 @@ DbSync will NOT delete rows from the destination that no longer exist on the sou
 Via composer - add the package to the require section in your composer.json file:
 
     "require" : {    
-        "mrjgreen/db-sync"   : "2.*"
+        "mrjgreen/db-sync"   : "3.*"
     }
 
-Or use the phar archive directly
+Or use the packaged archive directly
 
     wget https://github.com/mrjgreen/db-sync/raw/master/build/db-sync.phar -O db-sync.phar
     chmod a+x db-sync.phar
     
-Call directly
-
-    ./db-sync.phar source destination --options
-    
 Optionally make the command available globally
 
     sudo mv db-sync.phar /usr/bin/db-sync
-    #Call from anywhere using:
-    db-sync source destination --options
 
 ~~~
-Usage: bin/sync  source destination
+Usage:
+  db-sync [options] [--] <source> <target> <table>
 
-	 --help                 -h              Display help
-	 --quiet                -q              Suppress all output
-	 --verbose              -v[=""]         Set the verbosity level
-	 --charset                              The charset to use with PDO connections
-	 --chunk-size           -h=""           The comparion hash block size (number of rows)
-	 --columns              -c=""           Specify a subset of the sync columns to use in the block compariosn hash
-	 --execute              -e              Perform the data write on non-matching blocks
-	 --function                             The hash function to use in the block comparison: CRC32, MD5, SHA1
-	 --ignore-columns                       Sync columns to ignore in the block compariosn hash
-	 --ignore-sync-columns                  Columns to ignore when syncing and comparing data
-	 --ignore-tables                        Tables to ignore when syncing
-	 --password             -p=""           The password for the specified user
-	 --sync-columns                         The columns to compare and sync
-	 --sync-method                          The method used to write rows: replace, update.
-	                                        NB replace will fill missing sync columns with defaults. 
-	                                        Use update if this is not desired behavior
-	 					
-	 --tables               -t=""           The tables to sync
-	 --transfer-size        -s=""           The number of rows to transfer at once from non-matching blocks
-	 --user                 -u=""           The name of the user to connect with
-	 --where                -w=""           A WHERE clause to apply against the tables
+Arguments:
+  source                                 The source host ip to use.
+  target                                 The target host ip to use.
+  table                                  The fully qualified database table to sync.
+
+Options:
+  -b, --block-size=BLOCK-SIZE            The maximum block to use for when comparing [default: 1024]
+      --charset=CHARSET                  The charset to use for database connections [default: "utf8"]
+  -c, --columns=COLUMNS                  Columns to sync - all columns not "ignored" will be included by default (multiple values allowed)
+  -C, --config=CONFIG                    A path to a config.ini file from which to read values [default: "config.ini"]
+  -e, --execute                          Perform the data write on non-matching blocks
+  -i, --ignore-columns=IGNORE-COLUMNS    Columns to ignore (multiple values allowed)
+  -p, --password=PASSWORD                The password for the specified user. Will be solicited on the tty if not given.
+  -u, --user=USER                        The name of the user to connect with. [default: "joegreen"]
+  -s, --transfer-size=TRANSFER-SIZE      The maximum copy size to use for when comparing [default: 8]
+      --target.user=TARGET.USER          The name of the user to connect to the target host with if different to the source.
+      --target.table=TARGET.TABLE        The name of the table on the target host if different to the source.
+      --target.password=TARGET.PASSWORD  The password for the target host if the target user is specified. Will be solicited on the tty if not given.
+  -h, --help                             Display this help message
+  -q, --quiet                            Do not output any message
+  -V, --version                          Display this application version
+      --ansi                             Force ANSI output
+      --no-ansi                          Disable ANSI output
+  -n, --no-interaction                   Do not ask any interactive question
+  -v|vv|vvv, --verbose                   Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
 ~~~
 
-Source and Destination DSN should be in the format `user:password@host:database`
- > NB. The user:password section is optional if the user/password credentials are the same on both the source and destination. In this case you can specify the credentials using the --user="" and --password="" options
 
-Example - sync all tables on database1 to database2 on a different host:
+#### Example 1 - sync table web.customers from one host to another:
 
 ~~~~
-
-bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2
-
+bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers
 ~~~~
 
-Example - sync only two tables:
+#### Example 2 - sync table web.customers from one host to another using different credentials:
 
 ~~~~
-
-bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --tables="users,pages"
-
+bin/sync --user root --password mypass --target.user admin --target.password password 127.0.0.1 111.222.3.44 web.customers:
 ~~~~
 
-Example - sync all but one table:
+#### Example 3 - sync only the `email` and `name` fields from table web.customers (NB. The primary key will automatically be included in the column set):
 
 ~~~~
-
-bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --ignore-tables="users"
-
+bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
 ~~~~
 
-Example - sync one table and only use the `updated_at` to perform the hash checks (NB. The primary key will also be used in all hash checks to determine missing rows):
+#### Example 4 - sync every column except for the `updated_at` fields from table web.customers:
 
 ~~~~
-
-bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --ignore-tables="users" --columns="updated_at"
-
-~~~~
-
-Example - sync only two columns from one table and only use the `updated_at` to perform the hash checks.
-
-> NB If the `--sync-columns` option is specified, your `--columns` option must only contain columns which are present in the `--sync-columns` option. IE. you must sync all columns you use in the hash check. An exception will be thrown if there are columns present in --columns which are not set to sync.
-
-~~~~
-
-bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database2 --tables="users" --sync-columns="name,email,password,updated_at" --columns="updated_at"
-
+bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
 ~~~~
 
 
@@ -119,5 +96,5 @@ bin/sync root:password@127.0.0.1:database1  admin:password@111.222.3.44:database
  * [ ] 100% test coverage via full stack integration tests
  * [ ] Allow option to skip duplicate key errors
  * [ ] Allow option to delete data from target where not present on the source
- * [ ] Use symfony console command fo sync
+ * [-] Use symfony console command fo sync
  * [ ] Offer combination with other tool for full fast outfile based replacement (offer as initial sync?)
