@@ -65,25 +65,33 @@ Options:
 ~~~
 
 
-#### Example 1 - sync table web.customers from one host to another:
+##### Example 1
+
+Sync table web.customers from one host to another:
 
 ~~~~
 bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers
 ~~~~
 
-#### Example 2 - sync table web.customers from one host to another using different credentials:
+##### Example 2
+
+Sync table web.customers from one host to another using different credentials:
 
 ~~~~
 bin/sync --user root --password mypass --target.user admin --target.password password 127.0.0.1 111.222.3.44 web.customers:
 ~~~~
 
-#### Example 3 - sync only the `email` and `name` fields from table web.customers (NB. The primary key will automatically be included in the column set):
+##### Example 3
+
+Sync only the `email` and `name` fields from table web.customers (NB. The primary key will automatically be included in the column set):
 
 ~~~~
 bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
 ~~~~
 
-#### Example 4 - sync every column except for the `updated_at` fields from table web.customers:
+##### Example 4
+
+Sync every column except for the `updated_at` fields from table web.customers:
 
 ~~~~
 bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
@@ -96,5 +104,5 @@ bin/sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c e
  * [ ] 100% test coverage via full stack integration tests
  * [ ] Allow option to skip duplicate key errors
  * [ ] Allow option to delete data from target where not present on the source
- * [-] Use symfony console command fo sync
+ * [*] Use symfony console command fo sync
  * [ ] Offer combination with other tool for full fast outfile based replacement (offer as initial sync?)
