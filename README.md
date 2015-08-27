@@ -106,5 +106,5 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c em
  * [ ] 100% test coverage via full stack integration tests
  * [ ] Allow option to skip duplicate key errors
  * [ ] Allow option to delete data from target where not present on the source
- * [x] Use symfony console command fo sync
+ * [x] Use symfony console command for sync
  * [ ] Offer combination with other tool for full fast outfile based replacement (offer as initial sync?)
