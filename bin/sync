@@ -14,10 +14,68 @@ foreach($packageAutoloaders as $autoloader)
     }
 }
 
-use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\DescriptorHelper;
+use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Debug\ErrorHandler;
 ErrorHandler::register();
 
-$application = new Application('dbsync');
-$application->add(new SyncCommand());
-$application->run();
+class App {
+
+    private $descriptor;
+
+    private $formatter;
+
+    private $output;
+
+    public function __construct()
+    {
+        $this->descriptor = new DescriptorHelper();
+        $this->formatter = new FormatterHelper();
+        $this->output = new ConsoleOutput();
+    }
+
+    private function showUsage(Command $command)
+    {
+        $this->output->writeln("");
+        $this->output->writeln("<info>" . $command->getDescription() . "</info>");
+        $this->output->writeln("");
+        $this->descriptor->describe($this->output, $command->getDefinition());
+        $this->output->writeln("");
+    }
+
+    public function run(Command $command)
+    {
+        $input = new ArgvInput();
+
+        try
+        {
+            $input->bind($command->getDefinition());
+            $input->validate();
+        }catch (\Exception $e)
+        {
+            $this->output->writeln($this->formatter->formatBlock($e->getMessage(), 'error', true));
+
+            $this->showUsage($command);
+
+            return $e->getCode();
+        }
+
+        try
+        {
+            $command->run(new ArgvInput(), $this->output);
+        }catch (\Exception $e)
+        {
+            $this->output->writeln($this->formatter->formatBlock($e->getMessage(), 'error', true));
+
+            return $e->getCode();
+        }
+
+        return 0;
+    }
+
+}
+
+return (new App())->run(new SyncCommand());

@@ -5,6 +5,7 @@ use DbSync\ColumnConfiguration;
 use DbSync\DbSync;
 use DbSync\Table;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -34,7 +35,7 @@ class SyncCommand extends Command
         $currentUser = $currentUserInfo['name'];
 
         $this
-            ->setName('table')
+            ->setName('db-sync')
             ->setDescription('Sync a mysql database table from one host to another using an efficient checksum algorithm to find differences')
             ->addArgument('source', InputArgument::REQUIRED, 'The source host ip to use.')
             ->addArgument('target', InputArgument::REQUIRED, 'The target host ip to use.')
@@ -52,7 +53,6 @@ class SyncCommand extends Command
             ->addOption('target.table',null , InputOption::VALUE_REQUIRED, 'The name of the table on the target host if different to the source.')
             ->addOption('target.password',null , InputOption::VALUE_REQUIRED, 'The password for the target host if the target user is specified. Will be solicited on the tty if not given.')
             //->addOption('where', null , InputOption::VALUE_REQUIRED, 'A where clause to apply to the source table')
-            //->addOption('skip-create', null, InputOption::VALUE_NONE, 'Do not attempt to create the table if it doesn\'t exist on the target.')
         ;
     }
 
@@ -87,7 +87,7 @@ class SyncCommand extends Command
             }
         }
 
-        $this->questioner = new Questioner($input, $output, $this->getHelper('question'));
+        $this->questioner = new Questioner($input, $output, new QuestionHelper());
 
         $this->fire();
     }
