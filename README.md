@@ -107,4 +107,4 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c em
  * [ ] Allow option to skip duplicate key errors
  * [ ] Allow option to delete data from target where not present on the source
  * [x] Use symfony console command for sync
- * [ ] Offer combination with other tool for full fast outfile based replacement (offer as initial sync?)
+ * [ ] Speed up initial sync of empty table - Maybe offer combination with other tool for full fast outfile based replacement
