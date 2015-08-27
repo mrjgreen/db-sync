@@ -73,15 +73,17 @@ class DbSync {
      */
     public function sync(Table $source, Table $destination, ColumnConfiguration $syncConfig = null)
     {
-        $columns = $source->getColumns();
+        $tableColumns = $source->getColumns();
 
         $primaryKey = $source->getPrimaryKey();
 
-        $syncColumns = $syncConfig ? $syncConfig->getIntersection($columns) : $columns;
+        $syncColumns = $syncConfig ? $syncConfig->getIntersection($tableColumns) : $tableColumns;
 
         $syncColumns = array_merge($primaryKey, $syncColumns);
 
-        return $this->doComparison($source, $destination, $syncColumns, $this->blockSize);
+        $hash = $this->hashStrategy->getHashSelect($source->columnize($syncColumns));
+
+        return $this->doComparison($source, $destination, $syncColumns, $hash, $this->blockSize);
 
     }
 
@@ -89,29 +91,30 @@ class DbSync {
      * @param Table $source
      * @param Table $destination
      * @param $syncColumns
-     * @param $currentBlockSize
+     * @param $hash
+     * @param $blockSize
      * @param array $index
-     * @return int|void
+     * @return int
      */
-    private function doComparison(Table $source, Table $destination, $syncColumns, $currentBlockSize, array $index = array())
+    private function doComparison(Table $source, Table $destination, $syncColumns, $hash, $blockSize, array $index = array())
     {
         $rowCount = 0;
 
         for($i = 0; $i < 2; $i++)
         {
-            if(!$this->matches($source, $destination, $syncColumns, $index, $currentBlockSize)) {
+            if($source->getHashForKey($hash, $index, $blockSize) !== $destination->getHashForKey($hash, $index, $blockSize)) {
 
-                $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$currentBlockSize'");
+                $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$blockSize'");
 
-                if($currentBlockSize == $this->transferSize) {
-                    $rowCount += $this->copy($source, $destination, $syncColumns, $index, $currentBlockSize);
+                if($blockSize == $this->transferSize) {
+                    $rowCount += $this->copy($source, $destination, $syncColumns, $index, $blockSize);
                 }
                 else{
-                    $rowCount += $this->doComparison($source, $destination, $syncColumns, $currentBlockSize / 2, $index);
+                    $rowCount += $this->doComparison($source, $destination, $syncColumns, $hash, $blockSize / 2, $index);
                 }
             }
 
-            $index = $source->getKeyAtPosition($index, $currentBlockSize);
+            $index = $source->getKeyAtPosition($index, $blockSize);
 
             if($index === null) break;
         }
@@ -119,20 +122,6 @@ class DbSync {
         return $rowCount;
     }
 
-    /**
-     * @param Table $source
-     * @param Table $destination
-     * @param $compareColumns
-     * @param $nextIndex
-     * @param $blockSize
-     * @return bool
-     */
-    private function matches(Table $source, Table $destination, array $compareColumns, array $nextIndex, $blockSize)
-    {
-        $hash = $this->hashStrategy->getHashSelect($source->columnize($compareColumns));
-
-        return $source->getHashForKey($hash, $nextIndex, $blockSize) === $destination->getHashForKey($hash, $nextIndex, $blockSize);
-    }
 
     /**
      * @param Table $source
