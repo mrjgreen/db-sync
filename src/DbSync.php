@@ -84,7 +84,7 @@ class DbSync {
 
         $syncColumns = $syncConfig ? $syncConfig->getIntersection($tableColumns) : $tableColumns;
 
-        $syncColumns = array_merge($primaryKey, $syncColumns);
+        $syncColumns = array_unique(array_merge($primaryKey, $syncColumns));
 
         $hash = $this->hashStrategy->getHashSelect($source->columnize($syncColumns));
 
@@ -105,9 +105,11 @@ class DbSync {
     {
         $rowCount = 0;
 
-        for($i = 0; $i < 2; $i++)
+        $i = 0;
+
+        while($i++ < 2 || $blockSize == $this->blockSize)
         {
-            if($source->getHashForKey($hash, $index, $blockSize) !== $destination->getHashForKey($hash, $index, $blockSize)) {
+            if($source->getHashForKey($syncColumns, $hash, $index, $blockSize) !== $destination->getHashForKey($syncColumns, $hash, $index, $blockSize)) {
 
                 $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$blockSize'");
 
@@ -121,7 +123,11 @@ class DbSync {
 
             $index = $source->getKeyAtPosition($index, $blockSize);
 
-            if($index === null) break;
+            if($index === null)
+            {
+                $this->logger->debug("Reached end of results set table '$source' at block '$i' at block size '$blockSize'");
+                break;
+            }
         }
 
         return $rowCount;

@@ -20,7 +20,7 @@ abstract class HashAbstract implements HashInterface {
 
         $str = array();
 
-        while(--$i)
+        while($i--)
         {
             $start = (16 * $i) + 1;
             $str[] = $this->buildChecksumQuery("CONV(SUBSTR($hash($cols),$start,16),16,10)");

@@ -52,11 +52,14 @@ class Table {
      */
     public function getKeyAtPosition(array $lastKey, $position)
     {
-        $query = $this->query()->offset($position)->limit(1);
+        $query = $this->query()
+            ->select($this->getPrimaryKey())
+            ->offset($position)
+            ->limit(1);
 
         $this->applyPrimaryKeyWhere($query, $lastKey);
 
-        return $query->first($this->getPrimaryKey());
+        return $query->first();
     }
 
     /**
@@ -65,13 +68,19 @@ class Table {
      * @param $blockSize
      * @return mixed
      */
-    public function getHashForKey($hash, array $lastKey, $blockSize)
+    public function getHashForKey(array $columns, $hash, array $lastKey, $blockSize)
     {
-        $query = $this->query()->limit($blockSize);
+        $subQuery = $this->query()->select($columns)->limit($blockSize);
 
-        $this->applyPrimaryKeyWhere($query, $lastKey);
+        $this->applyPrimaryKeyWhere($subQuery, $lastKey);
 
-        return $query->pluck(new Expression($hash));
+        $query = $subQuery->newQuery()->from(new Expression("({$subQuery->toSql()}) t"));
+
+        $query->mergeBindings($subQuery);
+
+        $hash = $query->pluck(new Expression($hash));
+
+        return $hash;
     }
 
     /**
@@ -82,11 +91,11 @@ class Table {
      */
     public function getRowsForKey(array $columns, array $lastKey, $blockSize)
     {
-        $query = $this->query()->limit($blockSize);
+        $query = $this->query()->select($columns)->limit($blockSize);
 
         $this->applyPrimaryKeyWhere($query, $lastKey);
 
-        $stmt = $query->query($columns);
+        $stmt = $query->query();
 
         $stmt->setFetchMode(\PDO::FETCH_ASSOC);
 
@@ -171,10 +180,9 @@ class Table {
 
         if($values)
         {
-            foreach($values as $column => $value)
-            {
-                $query->where($column, '>=', $value);
-            }
+            $sql = "({$this->columnize(array_keys($values))}) >= ({$this->connection->getQueryGrammar()->parameterize($values)})";
+
+            $query->whereRaw($sql, $values);
         }
     }
 

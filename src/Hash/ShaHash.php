@@ -4,7 +4,7 @@ class ShaHash extends HashAbstract {
 
     const SHA1_SQL_FUNCTION = 'SHA1';
 
-    const SHA1_BYTE_SIZE = 4;
+    const SHA1_BYTE_SIZE = 3;
 
     public function getHashSelect($columnsString)
     {

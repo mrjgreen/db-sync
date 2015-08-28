@@ -77,7 +77,7 @@ class SyncCommand extends Command
     {
         $this->output = $output;
 
-        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
 
         $this->input = $input;
 
