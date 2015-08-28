@@ -77,6 +77,11 @@ class DbSync {
 
         $primaryKey = $source->getPrimaryKey();
 
+        if(!$primaryKey)
+        {
+            throw new \RuntimeException("The table $source does not have a primary key");
+        }
+
         $syncColumns = $syncConfig ? $syncConfig->getIntersection($tableColumns) : $tableColumns;
 
         $syncColumns = array_merge($primaryKey, $syncColumns);
