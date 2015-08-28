@@ -3,6 +3,7 @@
 use Database\Connectors\ConnectionFactory;
 use DbSync\ColumnConfiguration;
 use DbSync\DbSync;
+use DbSync\Hash\CrcHash;
 use DbSync\Table;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -137,7 +138,7 @@ class SyncCommand extends Command
             $logger->notice("Dry run only. No data will be written to target.");
         }
 
-        $sync = new DbSync($dryRun);
+        $sync = new DbSync($dryRun, new CrcHash());
 
         $sync->setLogger($logger);
 
