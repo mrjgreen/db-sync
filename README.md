@@ -100,10 +100,17 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c em
 Sync every column except for the `updated_at` fields from the table `web.customers`:
 
 ~~~~
-db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
+db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i updated_at
 ~~~~
 
 
+##### Example 5
+
+Sync the table `web.customers` to a table under a different name in a different database `web_backup.customers_2`:
+
+~~~~
+db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers:
+~~~~
 
 ###Roadmap
 
