@@ -17,13 +17,29 @@ class DbSync {
 
     private $dryRun;
 
-    public function __construct($dryRun = false, HashInterface $hashStrategy = null)
-    {
-        $this->dryRun = $dryRun;
+    private $delete;
 
+    public function __construct(HashInterface $hashStrategy = null)
+    {
         $this->hashStrategy = $hashStrategy ?: new ShaHash();
 
         $this->logger = new NullLogger();
+    }
+
+    /**
+     * @param bool|true $dryRun
+     */
+    public function dryRun($dryRun = true)
+    {
+        $this->dryRun = (bool)$dryRun;
+    }
+
+    /**
+     * @param bool|true $delete
+     */
+    public function delete($delete = true)
+    {
+        $this->delete = (bool)$delete;
     }
 
     /**
@@ -160,7 +176,7 @@ class DbSync {
     {
         $rows = $source->getRowsForKey($columns, $startIndex, $endIndex);
 
-        $count = $rows->rowCount();
+        $count = count($rows);
 
         $this->logger->debug("Copying '$count' rows from '$source' => '$destination'");
 
@@ -172,6 +188,11 @@ class DbSync {
         }
 
         $rowCount = $destination->insert($rows, $columns);
+
+        if($this->delete)
+        {
+            $destination->delete($startIndex, $endIndex, $rows);
+        }
 
         $this->logger->info("Inserted/Updated '$rowCount' rows from '$source' => '$destination'");
 

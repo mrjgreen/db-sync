@@ -42,6 +42,11 @@ class Table {
     private $cacheWhereStart;
 
     /**
+     * @var string
+     */
+    private $cacheWhereNot;
+
+    /**
      * @param Connection $connection
      * @param $database
      * @param $table
@@ -103,7 +108,7 @@ class Table {
      * @param array $columns
      * @param array $startIndex
      * @param array $endIndex
-     * @return \PDOStatement
+     * @return array
      */
     public function getRowsForKey(array $columns, array $startIndex, array $endIndex)
     {
@@ -111,19 +116,39 @@ class Table {
 
         $this->applyPrimaryKeyWhere($query, $startIndex, $endIndex);
 
-        $stmt = $query->query();
-
-        $stmt->setFetchMode(\PDO::FETCH_ASSOC);
-
-        return $stmt;
+        return $query->get();
     }
 
     /**
-     * @param \Traversable $rows
+     * @param array $startIndex
+     * @param array $endIndex
+     * @param array $rows
+     * @return int
+     */
+    public function delete(array $startIndex, array $endIndex, array $rows)
+    {
+        $query = $this->query();
+
+        $this->applyPrimaryKeyWhere($query, $startIndex, $endIndex);
+
+        $pk = array_flip($this->getPrimaryKey());
+
+        foreach($rows as $row)
+        {
+            $cols = array_intersect_key($row, $pk);
+
+            $query->whereRaw($this->getWhereNot(), $cols);
+        }
+
+        $query->delete();
+    }
+
+    /**
+     * @param array $rows
      * @param array $columns
      * @return int
      */
-    public function insert(\Traversable $rows, array $columns)
+    public function insert(array $rows, array $columns)
     {
         $update = array();
 
@@ -132,7 +157,7 @@ class Table {
             $update[$column] = new Expression("VALUES(`$column`)");
         }
 
-        return $this->query()->buffer()->insertOnDuplicateKeyUpdate($rows, $update);
+        return $this->query()->insertOnDuplicateKeyUpdate($rows, $update)->rowCount();
     }
 
     /**
@@ -222,6 +247,13 @@ class Table {
         {
             $query->whereRaw($this->getWhereEnd(), $endIndex);
         }
+    }
+
+    private function getWhereNot()
+    {
+        $pk = $this->getPrimaryKey();
+
+        return $this->cacheWhereNot ?: ($this->cacheWhereNot = "({$this->columnize($pk)}) <> ({$this->connection->getQueryGrammar()->parameterize($pk)})");
     }
 
     private function getWhereStart()

@@ -45,6 +45,7 @@ class SyncCommand extends Command
             ->addOption('charset',null, InputOption::VALUE_REQUIRED, 'The charset to use for database connections', 'utf8')
             ->addOption('columns','c', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to sync - all columns not "ignored" will be included by default')
             ->addOption('config','C', InputOption::VALUE_REQUIRED, 'A path to a config.ini file from which to read values', 'config.ini')
+            ->addOption('delete', null, InputOption::VALUE_NONE, 'Remove rows from the target table that do not exist in the source')
             ->addOption('execute','e', InputOption::VALUE_NONE, 'Perform the data write on non-matching blocks')
             ->addOption('ignore-columns','i', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore')
             ->addOption('password','p', InputOption::VALUE_REQUIRED, 'The password for the specified user. Will be solicited on the tty if not given.')
@@ -138,7 +139,11 @@ class SyncCommand extends Command
             $logger->notice("Dry run only. No data will be written to target.");
         }
 
-        $sync = new DbSync($dryRun, new Md5Hash());
+        $sync = new DbSync(new Md5Hash());
+
+        $sync->dryRun($dryRun);
+
+        $sync->delete($this->input->getOption('delete'));
 
         $sync->setLogger($logger);
 
