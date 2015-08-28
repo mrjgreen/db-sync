@@ -216,6 +216,13 @@ class Table {
         if($endIndex)
         {
             $query->whereRaw($this->getWhereEnd(), $endIndex);
+
+            // If we have start index this will already have been covered above
+            if(!$startIndex && $compoundPrimary)
+            {
+                // Optimisation to isolate first item in index - also works well for partition pruning
+                $query->where($this->cachePrimaryKey[0], '<=', reset($endIndex));
+            }
         }
     }
 
