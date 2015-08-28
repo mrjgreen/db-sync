@@ -109,19 +109,22 @@ class DbSync {
 
         while($i++ < 2 || $blockSize == $this->blockSize)
         {
-            if($source->getHashForKey($syncColumns, $hash, $index, $blockSize) !== $destination->getHashForKey($syncColumns, $hash, $index, $blockSize)) {
+            $nextIndex = $source->getKeyAtPosition($index, $blockSize);
+            $endIndex = $nextIndex ?: array();
+
+            if($source->getHashForKey($syncColumns, $hash, $index, $endIndex) !== $destination->getHashForKey($syncColumns, $hash, $index, $endIndex)) {
 
                 $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$blockSize'");
 
                 if($blockSize == $this->transferSize) {
-                    $rowCount += $this->copy($source, $destination, $syncColumns, $index, $blockSize);
+                    $rowCount += $this->copy($source, $destination, $syncColumns, $index, $endIndex);
                 }
                 else{
                     $rowCount += $this->doComparison($source, $destination, $syncColumns, $hash, $blockSize / 2, $index);
                 }
             }
 
-            $index = $source->getKeyAtPosition($index, $blockSize);
+            $index = $nextIndex;
 
             if($index === null)
             {
@@ -138,28 +141,28 @@ class DbSync {
      * @param Table $source
      * @param Table $destination
      * @param $columns
-     * @param $nextIndex
-     * @param $blockSize
+     * @param $startIndex
+     * @param $endIndex
      * @return int
      */
-    private function copy(Table $source, Table $destination, $columns, $nextIndex, $blockSize)
+    private function copy(Table $source, Table $destination, $columns, $startIndex, $endIndex)
     {
-        $rows = $source->getRowsForKey($columns, $nextIndex, $blockSize);
+        $rows = $source->getRowsForKey($columns, $startIndex, $endIndex);
 
         $count = $rows->rowCount();
 
-        $this->logger->debug("Copying '$count' rows from '$source' => '$destination' for block size '$blockSize'");
+        $this->logger->debug("Copying '$count' rows from '$source' => '$destination'");
 
         if($this->dryRun)
         {
-            $this->logger->info("DRY RUN: would copy '$count' rows from '$source' => '$destination' for block size '$blockSize'");
+            $this->logger->info("DRY RUN: would copy '$count' rows from '$source' => '$destination'");
 
             return 0;
         }
 
         $rowCount = $destination->insert($rows, $columns);
 
-        $this->logger->info("Inserted/Updated '$rowCount' rows from '$source' => '$destination' for block size '$blockSize'");
+        $this->logger->info("Inserted/Updated '$rowCount' rows from '$source' => '$destination'");
 
         return $rowCount;
     }

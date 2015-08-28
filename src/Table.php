@@ -63,16 +63,17 @@ class Table {
     }
 
     /**
+     * @param array $columns
      * @param $hash
-     * @param array $lastKey
-     * @param $blockSize
+     * @param array $startIndex
+     * @param array $endIndex
      * @return mixed
      */
-    public function getHashForKey(array $columns, $hash, array $lastKey, $blockSize)
+    public function getHashForKey(array $columns, $hash, array $startIndex, array $endIndex)
     {
-        $subQuery = $this->query()->select($columns)->limit($blockSize);
+        $subQuery = $this->query()->select($columns);
 
-        $this->applyPrimaryKeyWhere($subQuery, $lastKey);
+        $this->applyPrimaryKeyWhere($subQuery, $startIndex, $endIndex);
 
         $query = $subQuery->newQuery()->from(new Expression("({$subQuery->toSql()}) t"));
 
@@ -85,15 +86,15 @@ class Table {
 
     /**
      * @param array $columns
-     * @param array $lastKey
-     * @param $blockSize
+     * @param array $startIndex
+     * @param array $endIndex
      * @return \PDOStatement
      */
-    public function getRowsForKey(array $columns, array $lastKey, $blockSize)
+    public function getRowsForKey(array $columns, array $startIndex, array $endIndex)
     {
-        $query = $this->query()->select($columns)->limit($blockSize);
+        $query = $this->query()->select($columns);
 
-        $this->applyPrimaryKeyWhere($query, $lastKey);
+        $this->applyPrimaryKeyWhere($query, $startIndex, $endIndex);
 
         $stmt = $query->query();
 
@@ -169,20 +170,28 @@ class Table {
 
     /**
      * @param Builder $query
-     * @param array|null $values
+     * @param array|null $startIndex
+     * @param array|null $endIndex
      */
-    private function applyPrimaryKeyWhere(Builder $query, array $values = null)
+    private function applyPrimaryKeyWhere(Builder $query, array $startIndex = null, array $endIndex = null)
     {
         foreach($this->getPrimaryKey() as $keyCol)
         {
             $query->orderBy($keyCol);
         }
 
-        if($values)
+        if($startIndex)
         {
-            $sql = "({$this->columnize(array_keys($values))}) >= ({$this->connection->getQueryGrammar()->parameterize($values)})";
+            $sql = "({$this->columnize(array_keys($startIndex))}) >= ({$this->connection->getQueryGrammar()->parameterize($startIndex)})";
 
-            $query->whereRaw($sql, $values);
+            $query->whereRaw($sql, $startIndex);
+        }
+
+        if($endIndex)
+        {
+            $sql = "({$this->columnize(array_keys($endIndex))}) < ({$this->connection->getQueryGrammar()->parameterize($endIndex)})";
+
+            $query->whereRaw($sql, $endIndex);
         }
     }
 
