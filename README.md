@@ -30,7 +30,7 @@ Via composer - add the package to the require section in your composer.json file
 
 Or use the packaged archive directly
 
-    wget https://github.com/mrjgreen/db-sync/raw/master/build/db-sync.phar -O db-sync.phar
+    wget https://github.com/mrjgreen/db-sync/raw/v3/db-sync.phar -O db-sync.phar
     chmod a+x db-sync.phar
     
 Optionally make the command available globally
