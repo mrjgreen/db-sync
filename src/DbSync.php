@@ -103,9 +103,7 @@ class DbSync {
      */
     private function doComparison(Table $source, Table $destination, $syncColumns, $hash, $blockSize, array $index = array())
     {
-        $rowCount = 0;
-        $checked = 0;
-        $transferredCount = 0;
+        $result = new Result();
 
         $i = 0;
 
@@ -120,19 +118,21 @@ class DbSync {
                 $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$blockSize'");
 
                 if($blockSize == $this->transferSize) {
-                    $transferredCount += $blockSize;
-                    $rowCount += $this->copy($source, $destination, $syncColumns, $index, $endIndex);
+
+                    $result->addRowsTransferred($blockSize);
+
+                    $result->addRowsAffected($this->copy($source, $destination, $syncColumns, $index, $endIndex));
                 }
                 else{
-                    $rowCount += $this->doComparison($source, $destination, $syncColumns, $hash, $blockSize / 2, $index);
+                    $result->merge($this->doComparison($source, $destination, $syncColumns, $hash, $blockSize / 2, $index));
                 }
             }
 
             if($blockSize == $this->blockSize)
             {
-                $checked = $i * $blockSize;
+                $result->addRowsChecked($i * $blockSize);
 
-                $this->logger->info("Written '$rowCount' rows, checked '$checked' rows for tables '$source' => '$destination'");
+                $this->logger->info("Written '{$result->getRowsAffected()}' rows, checked '{$result->getRowsChecked()}' rows for tables '$source' => '$destination'");
             }
 
             $index = $nextIndex;
@@ -144,7 +144,7 @@ class DbSync {
             }
         }
 
-        return new Result($transferredCount, $rowCount, $checked);
+        return $result;
     }
 
 

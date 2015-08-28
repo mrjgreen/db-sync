@@ -3,19 +3,25 @@
 
 class Result {
 
-    private $rowCount;
+    private $rowCount = 0;
 
-    private $checkedCount;
+    private $checkedCount = 0;
 
-    private $transferredCount;
+    private $transferredCount = 0;
 
-    public function __construct($transferredCount, $affectedCount, $checkedCount)
+    public function addRowsChecked($rows)
     {
-        $this->transferredCount = $transferredCount;
+        $this->checkedCount += $rows;
+    }
 
-        $this->affectedCount = $affectedCount;
+    public function addRowsAffected($rows)
+    {
+        $this->rowCount += $rows;
+    }
 
-        $this->checkedCount = $checkedCount;
+    public function addRowsTransferred($rows)
+    {
+        $this->transferredCount += $rows;
     }
 
     public function getRowsAffected()
@@ -28,9 +34,16 @@ class Result {
         return $this->transferredCount;
     }
 
-    public function getCheckedCount()
+    public function getRowsChecked()
     {
         return $this->checkedCount;
+    }
+
+    public function merge(Result $result)
+    {
+        $this->addRowsAffected($result->getRowsAffected());
+        $this->addRowsChecked($result->getRowsChecked());
+        $this->addRowsTransferred($result->getRowsTransferred());
     }
 
     public function toArray()
