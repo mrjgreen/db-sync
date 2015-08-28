@@ -217,14 +217,14 @@ class Table {
     {
         $pk = $this->getPrimaryKey();
 
-        return $this->cacheWhereStart ?: $this->cacheWhereStart = "({$this->columnize($pk)}) >= ({$this->connection->getQueryGrammar()->parameterize($pk)})";
+        return $this->cacheWhereStart ?: ($this->cacheWhereStart = "({$this->columnize($pk)}) >= ({$this->connection->getQueryGrammar()->parameterize($pk)})");
     }
 
     private function getWhereEnd()
     {
         $pk = $this->getPrimaryKey();
 
-        return $this->cacheWhereEnd ?: $this->cacheWhereEnd = "({$this->columnize($pk)}) < ({$this->connection->getQueryGrammar()->parameterize($pk)})";
+        return $this->cacheWhereEnd ?: ($this->cacheWhereEnd = "({$this->columnize($pk)}) < ({$this->connection->getQueryGrammar()->parameterize($pk)})");
     }
 
     /**
