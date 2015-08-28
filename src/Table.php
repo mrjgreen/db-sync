@@ -204,7 +204,12 @@ class Table {
                     if(!$endIndex || $endIndex[$column] !== $value)
                     {
                         $query->where($column, '>=', $value);
-                        $query->where($column, '<=', $endIndex[$column]);
+
+                        if($endIndex)
+                        {
+                            $query->where($column, '<=', $endIndex[$column]);
+                        }
+
                         break;
                     }
 
