@@ -57,6 +57,11 @@ class Table {
             ->offset($position)
             ->limit(1);
 
+        foreach($this->getPrimaryKey() as $keyCol)
+        {
+            $query->orderBy($keyCol);
+        }
+
         $this->applyPrimaryKeyWhere($query, $lastKey);
 
         return $query->first();
@@ -175,11 +180,6 @@ class Table {
      */
     private function applyPrimaryKeyWhere(Builder $query, array $startIndex = null, array $endIndex = null)
     {
-        foreach($this->getPrimaryKey() as $keyCol)
-        {
-            $query->orderBy($keyCol);
-        }
-
         if($startIndex)
         {
             $sql = "({$this->columnize(array_keys($startIndex))}) >= ({$this->connection->getQueryGrammar()->parameterize($startIndex)})";
