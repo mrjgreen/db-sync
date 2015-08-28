@@ -185,6 +185,12 @@ class Table {
             $sql = "({$this->columnize(array_keys($startIndex))}) >= ({$this->connection->getQueryGrammar()->parameterize($startIndex)})";
 
             $query->whereRaw($sql, $startIndex);
+
+            // Optimisation to isolate first item in index - also works well for partition pruning
+            $first = reset($startIndex);
+            $key = key($startIndex);
+
+            $query->where($key, '>=', $first);
         }
 
         if($endIndex)
@@ -192,6 +198,12 @@ class Table {
             $sql = "({$this->columnize(array_keys($endIndex))}) < ({$this->connection->getQueryGrammar()->parameterize($endIndex)})";
 
             $query->whereRaw($sql, $endIndex);
+
+            // Optimisation to isolate first item in index - also works well for partition pruning
+            $first = reset($endIndex);
+            $key = key($endIndex);
+
+            $query->where($key, '<=', $first);
         }
     }
 
