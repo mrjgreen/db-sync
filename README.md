@@ -15,7 +15,7 @@ It is not unstable and will break your table - you MUST not use this branch.
 ### What is it?
 DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables. 
 
-In order to do this without comparing every byte of data, the tool preforms a checksum (SHA1) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency, the tool performs a binary search through the data performing the checksum at each level until it finds the inconsistency.
+In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency, the tool performs a binary search through the data performing the checksum at each level until it finds the inconsistency.
 
 ### Notes About Deletion
 DbSync will NOT delete rows from the destination that no longer exist on the source. This will lead to DbSync always trying to copy blocks which contain deleted rows. I intend to release a version which rectifies this with a --delete option.
