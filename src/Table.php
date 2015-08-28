@@ -190,24 +190,25 @@ class Table {
      */
     private function applyPrimaryKeyWhere(Builder $query, array $startIndex, array $endIndex = null)
     {
+        $compoundPrimary = count($startIndex) > 1;
+
         if($startIndex)
         {
             $query->whereRaw($this->getWhereStart(), $startIndex);
 
-            if(count($startIndex) > 1)
+            if($compoundPrimary)
             {
                 // Optimisation to isolate all matching columns in index, plus a range query on the last non matching column - also works well for partition pruning
                 foreach($startIndex as $column => $value)
                 {
-                    if($endIndex && $endIndex[$column] === $value)
-                    {
-                        $query->where($column, $value);
-                    }else
+                    if(!$endIndex || $endIndex[$column] !== $value)
                     {
                         $query->where($column, '>=', $value);
                         $query->where($column, '<=', $endIndex[$column]);
                         break;
                     }
+
+                    $query->where($column, $value);
                 }
             }
         }
@@ -215,12 +216,6 @@ class Table {
         if($endIndex)
         {
             $query->whereRaw($this->getWhereEnd(), $endIndex);
-
-            if(count($endIndex) > 1)
-            {
-                // Optimisation to isolate first item in index - also works well for partition pruning
-                $query->where($this->cachePrimaryKey[0], '<=', reset($endIndex));
-            }
         }
     }
 
