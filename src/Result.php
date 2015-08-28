@@ -18,6 +18,21 @@ class Result {
         $this->checkedCount = $checkedCount;
     }
 
+    public function getRowsAffected()
+    {
+        return $this->rowCount;
+    }
+
+    public function getRowsTransferred()
+    {
+        return $this->transferredCount;
+    }
+
+    public function getCheckedCount()
+    {
+        return $this->checkedCount;
+    }
+
     public function toArray()
     {
         return array(
