@@ -197,7 +197,7 @@ class Table {
             if(count($startIndex) > 1)
             {
                 // Optimisation to isolate first item in index - also works well for partition pruning
-                //$query->where($this->cachePrimaryKey[0], '>=', reset($startIndex));
+                $query->where($this->cachePrimaryKey[0], '>=', reset($startIndex));
             }
         }
 
