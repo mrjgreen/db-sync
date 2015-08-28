@@ -188,7 +188,7 @@ class Table {
      * @param array|null $startIndex
      * @param array|null $endIndex
      */
-    private function applyPrimaryKeyWhere(Builder $query, array $startIndex = null, array $endIndex = null)
+    private function applyPrimaryKeyWhere(Builder $query, array $startIndex, array $endIndex = null)
     {
         if($startIndex)
         {
@@ -196,8 +196,19 @@ class Table {
 
             if(count($startIndex) > 1)
             {
-                // Optimisation to isolate first item in index - also works well for partition pruning
-                $query->where($this->cachePrimaryKey[0], '>=', reset($startIndex));
+                // Optimisation to isolate all matching columns in index, plus a range query on the last non matching column - also works well for partition pruning
+                foreach($startIndex as $column => $value)
+                {
+                    if($endIndex && $endIndex[$column] === $value)
+                    {
+                        $query->where($column, $value);
+                    }else
+                    {
+                        $query->where($column, '>=', $value);
+                        $query->where($column, '<=', $endIndex[$column]);
+                        break;
+                    }
+                }
             }
         }
 
