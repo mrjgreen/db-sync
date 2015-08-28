@@ -130,7 +130,7 @@ class DbSync {
 
             if($blockSize == $this->blockSize)
             {
-                $result->addRowsChecked($i * $blockSize);
+                $result->addRowsChecked($blockSize);
 
                 $this->logger->info("Written '{$result->getRowsAffected()}' rows, checked '{$result->getRowsChecked()}' rows for tables '$source' => '$destination'");
             }
