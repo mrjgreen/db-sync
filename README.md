@@ -109,7 +109,7 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i up
 Sync the table `web.customers` to a table under a different name in a different database `web_backup.customers_2`:
 
 ~~~~
-db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers:
+db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers
 ~~~~
 
 ###Roadmap
