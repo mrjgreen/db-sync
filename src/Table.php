@@ -215,7 +215,7 @@ class Table {
      */
     private function applyPrimaryKeyWhere(Builder $query, array $startIndex, array $endIndex = null)
     {
-        $compoundPrimary = count($startIndex) > 1;
+        $compoundPrimary = count($this->cachePrimaryKey) > 1;
 
         if($startIndex)
         {
