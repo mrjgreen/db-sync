@@ -131,6 +131,13 @@ class DbSync {
                 $this->logger->debug("Reached end of results set table '$source' at block '$i' at block size '$blockSize'");
                 break;
             }
+
+            if($blockSize == $this->blockSize)
+            {
+                $checked = $i * $blockSize;
+
+                $this->logger->info("Written '$rowCount' rows, checked '$checked' rows for tables '$source' => '$destination'");
+            }
         }
 
         return $rowCount;
