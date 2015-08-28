@@ -211,6 +211,9 @@ class Table {
                 $query->where($this->cachePrimaryKey[0], '<=', reset($endIndex));
             }
         }
+
+        var_dump($query->toSql());
+        var_dump($query->getBindings());
     }
 
     private function getWhereStart()
