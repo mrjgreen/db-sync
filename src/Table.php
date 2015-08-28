@@ -32,6 +32,16 @@ class Table {
     private $cachePrimaryKey;
 
     /**
+     * @var string
+     */
+    private $cacheWhereEnd;
+
+    /**
+     * @var string
+     */
+    private $cacheWhereStart;
+
+    /**
      * @param Connection $connection
      * @param $database
      * @param $table
@@ -182,35 +192,39 @@ class Table {
     {
         if($startIndex)
         {
-            $sql = "({$this->columnize(array_keys($startIndex))}) >= ({$this->connection->getQueryGrammar()->parameterize($startIndex)})";
-
-            $query->whereRaw($sql, $startIndex);
+            $query->whereRaw($this->getWhereStart(), $startIndex);
 
             if(count($startIndex) > 1)
             {
                 // Optimisation to isolate first item in index - also works well for partition pruning
-                $first = reset($startIndex);
-                $key = key($startIndex);
-
-                $query->where($key, '>=', $first);
+                $query->where($this->cachePrimaryKey[0], '>=', reset($startIndex));
             }
         }
 
         if($endIndex)
         {
-            $sql = "({$this->columnize(array_keys($endIndex))}) < ({$this->connection->getQueryGrammar()->parameterize($endIndex)})";
-
-            $query->whereRaw($sql, $endIndex);
+            $query->whereRaw($this->getWhereEnd(), $endIndex);
 
             if(count($endIndex) > 1)
             {
                 // Optimisation to isolate first item in index - also works well for partition pruning
-                $first = reset($endIndex);
-                $key = key($endIndex);
-
-                $query->where($key, '<=', $first);
+                $query->where($this->cachePrimaryKey[0], '<=', reset($endIndex));
             }
         }
+    }
+
+    private function getWhereStart()
+    {
+        $pk = $this->getPrimaryKey();
+
+        return $this->cacheWhereStart ?: $this->cacheWhereStart = "({$this->columnize($pk)}) >= ({$this->connection->getQueryGrammar()->parameterize($pk)})";
+    }
+
+    private function getWhereEnd()
+    {
+        $pk = $this->getPrimaryKey();
+
+        return $this->cacheWhereEnd ?: $this->cacheWhereEnd = "({$this->columnize($pk)}) < ({$this->connection->getQueryGrammar()->parameterize($pk)})";
     }
 
     /**
