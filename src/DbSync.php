@@ -187,14 +187,20 @@ class DbSync {
             return 0;
         }
 
-        $rowCount = $destination->insert($rows, $columns);
+        if($rowCount = $destination->insert($rows, $columns))
+        {
+            $this->logger->info("Inserted/Updated '$rowCount' rows from '$source' => '$destination'");
+        }
 
         if($this->delete)
         {
-            $destination->delete($startIndex, $endIndex, $rows);
-        }
+            if($deleteCount = $destination->delete($startIndex, $endIndex, $rows))
+            {
+                $this->logger->info("Deleted '$rowCount' rows from '$source' => '$destination'");
 
-        $this->logger->info("Inserted/Updated '$rowCount' rows from '$source' => '$destination'");
+                $rowCount += $deleteCount;
+            }
+        }
 
         return $rowCount;
     }
