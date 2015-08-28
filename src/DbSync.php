@@ -69,7 +69,7 @@ class DbSync {
      * @param Table $source
      * @param Table $destination
      * @param ColumnConfiguration|null $syncConfig
-     * @return int|void
+     * @return Result
      */
     public function sync(Table $source, Table $destination, ColumnConfiguration $syncConfig = null)
     {
@@ -99,11 +99,13 @@ class DbSync {
      * @param $hash
      * @param $blockSize
      * @param array $index
-     * @return int
+     * @return Result
      */
     private function doComparison(Table $source, Table $destination, $syncColumns, $hash, $blockSize, array $index = array())
     {
         $rowCount = 0;
+        $checked = 0;
+        $transferredCount = 0;
 
         $i = 0;
 
@@ -118,6 +120,7 @@ class DbSync {
                 $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$blockSize'");
 
                 if($blockSize == $this->transferSize) {
+                    $transferredCount += $blockSize;
                     $rowCount += $this->copy($source, $destination, $syncColumns, $index, $endIndex);
                 }
                 else{
@@ -141,7 +144,7 @@ class DbSync {
             }
         }
 
-        return $rowCount;
+        return new Result($transferredCount, $rowCount, $checked);
     }
 
 

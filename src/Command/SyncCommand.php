@@ -146,13 +146,13 @@ class SyncCommand extends Command
 
         $sync->setTransferSize($this->input->getOption('transfer-size'));
 
-        $rows = $sync->sync(
+        $result = $sync->sync(
             new Table($source, $sourceDatabase, $sourceTable),
             new Table($target, $targetDatabase, $targetTable),
             new ColumnConfiguration($this->input->getOption('columns'), $this->input->getOption('ignore-columns'))
         );
 
-        $logger->notice("Written $rows rows");
+        $logger->notice(json_encode($result->toArray()));
     }
 
     private function parseTableName($name)
