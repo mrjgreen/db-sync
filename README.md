@@ -4,21 +4,23 @@ DbSync
 [![Build Status](https://travis-ci.org/mrjgreen/db-sync.svg?branch=master)](https://travis-ci.org/mrjgreen/db-sync)
 [![Coverage Status](https://img.shields.io/coveralls/mrjgreen/db-sync.svg)](https://coveralls.io/r/mrjgreen/db-sync)
 
-# DO NOT USE THIS BRANCH
+# DO NOT USE THIS BRANCH IN PRODUCTION
 
-It is not unstable and will break your table - you MUST not use this branch.
+It works and has been tested, but is not yet stable and should not be used in production.
 
 ### WARNING - This package modifies database tables. Use with extreme caution and back up databases before running.
 
-#### Always perform a dry run first before specifying the --execute option.
+#### Always perform a dry run first before specifying the `--execute (-e)` option.
 
 ### What is it?
 DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables. 
 
-In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency, the tool performs a binary search through the data performing the checksum at each level until it finds the inconsistency.
+In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency in a block, the tool performs a recursive checksum on each half of the block (down to a minumum block transfer size) until it finds the inconsistency.
 
 ### Notes About Deletion
-DbSync will NOT delete rows from the destination that no longer exist on the source. This will lead to DbSync always trying to copy blocks which contain deleted rows. I intend to release a version which rectifies this with a --delete option.
+DbSync will only delete rows from the destination that no longer exist on the source when using `--delete`. Use this option with extreme caution. Alwalys perform a dry run first.
+
+Synchronising a table which has row deletions between syncs without using the `--delete` option will cause DbSync to find inconsistencies in any block with a deleted row. Beacuse DbSync cannot delete the target rows, it will try to copy those blocks on every run.
 
 ### Installation
 
@@ -79,13 +81,21 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers
 
 ##### Example 2
 
+Sync the table `web.customers` from one host to another, deleting rows from the target that no longer exist on the source:
+
+~~~~
+db-sync --user root --password mypass --delete 127.0.0.1 111.222.3.44 web.customers
+~~~~
+
+##### Example 3
+
 Sync the table `web.customers` from one host to another using different credentials:
 
 ~~~~
 db-sync --user root --password mypass --target.user admin --target.password password 127.0.0.1 111.222.3.44 web.customers:
 ~~~~
 
-##### Example 3
+##### Example 4
 
 Sync only the `email` and `name` fields from the table `web.customers`:
 
@@ -95,7 +105,7 @@ Sync only the `email` and `name` fields from the table `web.customers`:
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
 ~~~~
 
-##### Example 4
+##### Example 5
 
 Sync every column except for the `updated_at` fields from the table `web.customers`:
 
@@ -104,7 +114,7 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i up
 ~~~~
 
 
-##### Example 5
+##### Example 6
 
 Sync the table `web.customers` to a table under a different name in a different database `web_backup.customers_2`:
 
