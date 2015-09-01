@@ -32,8 +32,13 @@ class SyncCommand extends Command
 
     protected function configure()
     {
-        $currentUserInfo = posix_getpwuid(posix_geteuid());
-        $currentUser = $currentUserInfo['name'];
+        if(function_exists('posix_getpwuid'))
+        {
+            $currentUserInfo = posix_getpwuid(posix_geteuid());
+            $currentUser = $currentUserInfo['name'];
+        }else{
+            $currentUser = null;
+        }
 
         $this
             ->setName('db-sync')
