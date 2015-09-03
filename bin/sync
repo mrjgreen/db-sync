@@ -70,6 +70,8 @@ class App {
         {
             $this->output->writeln($this->formatter->formatBlock($e->getMessage(), 'error', true));
 
+            $this->output->writeln('<comment>' . $e->getTraceAsString() . '</comment>');
+
             return $e->getCode();
         }
 

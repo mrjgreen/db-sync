@@ -61,10 +61,13 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
     private function doSync(\DbSync\Hash\HashInterface $hash, $cols = array())
     {
-        $sync = new \DbSync\DbSync($hash);
+        $sync = new \DbSync\DbSync(new \DbSync\Transfer\Transfer($hash, 16, 2));
 
         $source = new \DbSync\Table($this->connection, self::DATABASE, 'customers1');
         $target = new \DbSync\Table($this->connection, self::DATABASE, 'customers2');
+
+        $sync->delete();
+        $sync->dryRun(false);
 
         $sync->sync($source, $target, new \DbSync\ColumnConfiguration($cols, array()));
     }

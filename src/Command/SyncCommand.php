@@ -5,6 +5,7 @@ use DbSync\ColumnConfiguration;
 use DbSync\DbSync;
 use DbSync\Hash\Md5Hash;
 use DbSync\Table;
+use DbSync\Transfer\Transfer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
@@ -144,17 +145,13 @@ class SyncCommand extends Command
             $logger->notice("Dry run only. No data will be written to target.");
         }
 
-        $sync = new DbSync(new Md5Hash());
+        $sync = new DbSync(new Transfer(new Md5Hash(), $this->input->getOption('block-size'), $this->input->getOption('transfer-size')));
 
         $sync->dryRun($dryRun);
 
         $sync->delete($this->input->getOption('delete'));
 
         $sync->setLogger($logger);
-
-        $sync->setBlockSize($this->input->getOption('block-size'));
-
-        $sync->setTransferSize($this->input->getOption('transfer-size'));
 
         $result = $sync->sync(
             new Table($source, $sourceDatabase, $sourceTable),

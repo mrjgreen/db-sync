@@ -1,7 +1,8 @@
 <?php namespace DbSync;
 
-use DbSync\Hash\HashInterface;
-use DbSync\Hash\ShaHash;
+use DbSync\Hash\Md5Hash;
+use DbSync\Transfer\Transfer;
+use DbSync\Transfer\TransferInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -9,19 +10,15 @@ class DbSync {
 
     private $logger;
 
-    private $hashStrategy;
-
-    private $blockSize = 1024;
-
-    private $transferSize = 4;
+    private $transferInterface;
 
     private $dryRun;
 
     private $delete;
 
-    public function __construct(HashInterface $hashStrategy = null)
+    public function __construct(TransferInterface $transfer = null)
     {
-        $this->hashStrategy = $hashStrategy ?: new ShaHash();
+        $this->transferInterface = $transfer ?: new Transfer(new Md5Hash());
 
         $this->logger = new NullLogger();
     }
@@ -51,37 +48,6 @@ class DbSync {
     }
 
     /**
-     * @param $blockSize
-     */
-    public function setBlockSize($blockSize)
-    {
-        $this->validatePower2Int($blockSize);
-
-        $this->blockSize = $blockSize;
-    }
-
-    /**
-     * @param $transferSize
-     */
-    public function setTransferSize($transferSize)
-    {
-        $this->validatePower2Int($transferSize);
-
-        $this->transferSize = $transferSize;
-    }
-
-    /**
-     * @param $int
-     */
-    private function validatePower2Int($int)
-    {
-        if($int != (int)$int || $int < 1 || (($int & ($int - 1)) !== 0))
-        {
-            throw new \InvalidArgumentException("Argument must be a positive, power of 2 integer. '$int' given.");
-        }
-    }
-
-    /**
      * @param Table $source
      * @param Table $destination
      * @param ColumnConfiguration|null $syncConfig
@@ -102,9 +68,9 @@ class DbSync {
 
         $syncColumns = array_unique(array_merge($primaryKey, $syncColumns));
 
-        $hash = $this->hashStrategy->getHashSelect($source->columnize($syncColumns));
+        $hash = $this->transferInterface->getHashStrategy()->getHashSelect($source->columnize($syncColumns));
 
-        return $this->doComparison($source, $destination, $syncColumns, $hash, $this->blockSize);
+        return $this->doComparison($source, $destination, $syncColumns, $hash, $this->transferInterface->getBlockSize());
 
     }
 
@@ -123,7 +89,10 @@ class DbSync {
 
         $i = 0;
 
-        while($i++ < 2 || $blockSize == $this->blockSize)
+        $transferSize = $this->transferInterface->getTransferSize();
+        $maxBlockSize = $this->transferInterface->getBlockSize();
+
+        while($i++ < 2 || $blockSize == $maxBlockSize)
         {
             $nextIndex = $source->getKeyAtPosition($index, $blockSize);
 
@@ -133,7 +102,7 @@ class DbSync {
 
                 $this->logger->debug("Found mismatch for tables '$source' => '$destination' at block '$i' at block size '$blockSize'");
 
-                if($blockSize == $this->transferSize) {
+                if($blockSize == $transferSize) {
 
                     $result->addRowsTransferred($blockSize);
 
@@ -144,7 +113,7 @@ class DbSync {
                 }
             }
 
-            if($blockSize == $this->blockSize)
+            if($blockSize == $maxBlockSize)
             {
                 $result->addRowsChecked($blockSize);
 

@@ -1,8 +1,34 @@
 <?php namespace DbSync;
 
 use Database\Connection;
+use Database\Connectors\ConnectionFactory;
 use Database\Query\Builder;
 use Database\Query\Expression;
+use Database\Query\Grammars\MySqlGrammar;
+
+class Definition {
+
+    private $columns;
+
+    private $primaryKey;
+
+    public function __construct($columns, $primaryKey)
+    {
+        $this->columns = $columns;
+
+        $this->primaryKey = $primaryKey;
+    }
+
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
+
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+}
 
 class Table {
 
@@ -22,14 +48,9 @@ class Table {
     private $table;
 
     /**
-     * @var array|null
+     * @var Definition
      */
-    private $cacheColumns;
-
-    /**
-     * @var array|null
-     */
-    private $cachePrimaryKey;
+    private $definition;
 
     /**
      * @var string
@@ -58,6 +79,43 @@ class Table {
         $this->database = $database;
 
         $this->table = $table;
+
+        $this->configure();
+    }
+
+    /**
+     * @param \PDO $pdo
+     * @param $database
+     * @param $table
+     * @return static
+     */
+    public static function makeFromPdo(\PDO $pdo, $database, $table)
+    {
+        return new static(new Connection($pdo, new MySqlGrammar()), $database, $table);
+    }
+
+    /**
+     *
+     */
+    private function configure()
+    {
+        $columns = $this->connection
+            ->table('information_schema.columns')
+            ->where(array(
+                'table_schema' => $this->database,
+                'table_name' => $this->table,
+            ))->lists('column_name');
+
+
+        $name = $this->connection->getQueryGrammar()->wrap($this->getQualifiedName());
+
+        $rows = $this->connection->fetchAll("SHOW INDEX FROM $name WHERE `key_name` = 'PRIMARY'");
+
+        $index = array_column($rows, 'Column_name', 'Seq_in_index');
+
+        ksort($index);
+
+        $this->definition = new Definition($columns, array_values($index));
     }
 
     /**
@@ -167,17 +225,7 @@ class Table {
      */
     public function getColumns()
     {
-        if(!is_null($this->cacheColumns))
-        {
-            return $this->cacheColumns;
-        }
-
-        return $this->cacheColumns = $this->connection
-            ->table('information_schema.columns')
-            ->where(array(
-                'table_schema' => $this->database,
-                'table_name' => $this->table,
-            ))->lists('column_name');
+        return $this->definition->getColumns();
     }
 
     /**
@@ -187,25 +235,7 @@ class Table {
      */
     public function getPrimaryKey()
     {
-        if(!is_null($this->cachePrimaryKey))
-        {
-            return $this->cachePrimaryKey;
-        }
-
-        $name = $this->connection->getQueryGrammar()->wrap($this->getQualifiedName());
-
-        $rows = $this->connection->fetchAll("SHOW INDEX FROM $name WHERE `key_name` = 'PRIMARY'");
-
-        $index = array();
-
-        foreach($rows as $row)
-        {
-            $index[$row['Seq_in_index']] = $row['Column_name'];
-        }
-
-        ksort($index);
-
-        return $this->cachePrimaryKey = array_values($index);
+        return $this->definition->getPrimaryKey();
     }
 
     /**
@@ -215,7 +245,9 @@ class Table {
      */
     private function applyPrimaryKeyWhere(Builder $query, array $startIndex, array $endIndex = null)
     {
-        $compoundPrimary = count($this->cachePrimaryKey) > 1;
+        $key = $this->getPrimaryKey();
+
+        $compoundPrimary = count($key) > 1;
 
         if($startIndex)
         {
@@ -251,7 +283,7 @@ class Table {
             if(!$startIndex && $compoundPrimary)
             {
                 // Optimisation to isolate first item in index - also works well for partition pruning
-                $query->where($this->cachePrimaryKey[0], '<=', reset($endIndex));
+                $query->where(reset($key), '<=', reset($endIndex));
             }
         }
     }
