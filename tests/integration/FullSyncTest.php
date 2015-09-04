@@ -5,9 +5,13 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
     protected $connection;
 
+    protected $config;
+
     public function setUp()
     {
-        $this->connection = (new \Database\Connectors\ConnectionFactory())->make(include __DIR__ . '/config.php');
+        $this->config = include __DIR__ . '/config.php';
+
+        $this->connection = (new \Database\Connectors\ConnectionFactory())->make($this->config);
     }
 
     public function providerHashStrategy()
@@ -17,6 +21,23 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
             array(new DbSync\Hash\Md5Hash()),
             array(new DbSync\Hash\CrcHash()),
         );
+    }
+
+    public function testItRunsCommand()
+    {
+        $this->createTestDatabases();
+
+        $db = self::DATABASE;
+
+        $host = $this->config['host'];
+        $user = $this->config['username'];
+        $password = $this->config['password'];
+
+        $command = __DIR__ . "/../../bin/sync $host $host $db.customers1 --target.table=$db.customers2 -u $user -p $password -e";
+
+        exec($command, $output, $code);
+
+        $this->assertEquals(0, $code);
     }
 
     /**

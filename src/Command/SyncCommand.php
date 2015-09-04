@@ -6,6 +6,7 @@ use DbSync\DbSync;
 use DbSync\Hash\Md5Hash;
 use DbSync\Table;
 use DbSync\Transfer\Transfer;
+use DbSync\WhereClause;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
@@ -60,7 +61,7 @@ class SyncCommand extends Command
             ->addOption('target.user',null , InputOption::VALUE_REQUIRED, 'The name of the user to connect to the target host with if different to the source.')
             ->addOption('target.table',null , InputOption::VALUE_REQUIRED, 'The name of the table on the target host if different to the source.')
             ->addOption('target.password',null , InputOption::VALUE_REQUIRED, 'The password for the target host if the target user is specified. Will be solicited on the tty if not given.')
-            //->addOption('where', null , InputOption::VALUE_REQUIRED, 'A where clause to apply to the source table')
+            ->addOption('where', null , InputOption::VALUE_REQUIRED, 'A where clause to apply to the tables')
         ;
     }
 
@@ -153,9 +154,18 @@ class SyncCommand extends Command
 
         $sync->setLogger($logger);
 
+        $sourceTableObj = new Table($source, $sourceDatabase, $sourceTable);
+        $destTableObj = new Table($target, $targetDatabase, $targetTable);
+
+        if($where = $this->input->getOption('where'))
+        {
+            $sourceTableObj->setWhereClause(new WhereClause($where));
+            $destTableObj->setWhereClause(new WhereClause($where));
+        }
+
         $result = $sync->sync(
-            new Table($source, $sourceDatabase, $sourceTable),
-            new Table($target, $targetDatabase, $targetTable),
+            $sourceTableObj,
+            $destTableObj,
             new ColumnConfiguration($this->input->getOption('columns'), $this->input->getOption('ignore-columns'))
         );
 
