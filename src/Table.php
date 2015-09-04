@@ -53,6 +53,11 @@ class Table {
     private $definition;
 
     /**
+     * @var WhereClause
+     */
+    private $where;
+
+    /**
      * @var string
      */
     private $cacheWhereEnd;
@@ -92,6 +97,14 @@ class Table {
     public static function makeFromPdo(\PDO $pdo, $database, $table)
     {
         return new static(new Connection($pdo, new MySqlGrammar()), $database, $table);
+    }
+
+    /**
+     * @param WhereClause $where
+     */
+    public function setWhereClause(WhereClause $where)
+    {
+        $this->where = $where;
     }
 
     /**
@@ -245,6 +258,11 @@ class Table {
      */
     private function applyPrimaryKeyWhere(Builder $query, array $startIndex, array $endIndex = null)
     {
+        if($this->where)
+        {
+            $query->whereRaw($this->where->getWhere(), $this->where->getBindings());
+        }
+
         $key = $this->getPrimaryKey();
 
         $compoundPrimary = count($key) > 1;
