@@ -17,7 +17,7 @@
     "symfony/debug": "^2.7"
   },
   "require-dev": {
-    "phpunit/phpunit": "dev-master",
-    "satooshi/php-coveralls": "dev-master"
+    "satooshi/php-coveralls": "dev-master",
+    "phpunit/phpunit": "^4.8"
   }
 }
