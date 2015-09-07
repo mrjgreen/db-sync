@@ -4,10 +4,6 @@ DbSync
 [![Build Status](https://travis-ci.org/mrjgreen/db-sync.svg?branch=master)](https://travis-ci.org/mrjgreen/db-sync)
 [![Coverage Status](https://img.shields.io/coveralls/mrjgreen/db-sync.svg)](https://coveralls.io/r/mrjgreen/db-sync)
 
-# DO NOT USE THIS BRANCH IN PRODUCTION
-
-It works and has been tested, but is not yet stable and should not be used in production.
-
 ### WARNING - This package modifies database tables. Use with extreme caution and back up databases before running.
 
 #### Always perform a dry run first before specifying the `--execute (-e)` option.
