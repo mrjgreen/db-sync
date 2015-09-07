@@ -1,8 +1,8 @@
 DbSync
 =======
 
-[![Build Status](https://travis-ci.org/mrjgreen/db-sync.svg?branch=master)](https://travis-ci.org/mrjgreen/db-sync)
-[![Coverage Status](https://img.shields.io/coveralls/mrjgreen/db-sync.svg)](https://coveralls.io/r/mrjgreen/db-sync)
+[![Build Status](https://travis-ci.org/mrjgreen/db-sync.svg?branch=v3)](https://travis-ci.org/mrjgreen/db-sync)
+[![Coverage Status](https://coveralls.io/repos/mrjgreen/db-sync/badge.svg?branch=v3&service=github)](https://coveralls.io/github/mrjgreen/db-sync?branch=v3)
 
 ### WARNING - This package modifies database tables. Use with extreme caution and back up databases before running.
 
