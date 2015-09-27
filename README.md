@@ -9,17 +9,23 @@ DbSync
 
 #### Always perform a dry run first before specifying the `--execute (-e)` option.
 
-### What is it?
+What is it?
+-----------
+
 DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables. 
 
 In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency in a block, the tool performs a recursive checksum on each half of the block (down to a minumum block transfer size) until it finds the inconsistency.
 
-### Notes About Deletion
+
+Notes About Deletion
+--------------------
 DbSync will only delete rows from the destination that no longer exist on the source when the `--delete` option is specified. Use this option with extreme caution. Always perform a dry run first.
 
 If you use DbSync to synchronise a table which has row deletions on the source without using the `--delete` option, DbSync will find inconsistencies in any block with a deleted row on every run but will not be able to remove the rows from the target.
 
-### Installation
+
+Installation
+------------
 
 Via composer - run the following command in your project directory:
 
@@ -107,8 +113,23 @@ Sync every column except for the `updated_at` fields from the table `web.custome
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i updated_at
 ~~~~
 
-
 ##### Example 6
+
+Sync every column from the table `web.customers` but do not use the `notes` or `info` fields when calculating the hash:
+
+ > Note: 
+ 
+  * inconsistencies in excluded fields will not be detected
+  * in the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host
+  
+ > This is especially useful for tables with long text fields that don't change after initial insert, or which are associated
+ with an `on update CURRENT_TIMESTAMP` field. For large tables this can offer a big performance boost.
+
+~~~~
+db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i updated_at -x notes -x info
+~~~~
+
+##### Example 7
 
 Sync the table `web.customers` to a table under a different name in a different database `web_backup.customers_2`:
 
@@ -116,10 +137,26 @@ Sync the table `web.customers` to a table under a different name in a different 
 db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers
 ~~~~
 
-###Roadmap
+Roadmap
+-------
 
- * [ ] 100% test coverage via full stack integration tests
- * [ ] Allow option to skip duplicate key errors
+ * [x] 100% test coverage via full stack integration tests
  * [x] Allow option to delete data from target where not present on the source
  * [x] Use symfony console command for sync
+ * [ ] Allow option to skip duplicate key errors
  * [ ] Speed up initial sync of empty table - Maybe offer combination with other tool for full fast outfile based replacement
+
+Requirements
+------------
+
+PHP 5.3 or above
+
+License
+-------
+
+DbSync is licensed under the MIT License - see the LICENSE file for details
+
+Acknowledgments
+---------------
+
+- Inspiration for this project came from the Percona Tools `pt-table-sync`.
