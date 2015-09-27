@@ -2,6 +2,7 @@
   "name": "mrjgreen/db-sync",
   "type": "library",
   "description": "Efficient MySQL comparison and sync utility",
+  "license" : "MIT",
   "autoload": {
     "psr-4": {
       "DbSync\\": "src"
