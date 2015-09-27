@@ -161,7 +161,7 @@ Roadmap
 Requirements
 ------------
 
-PHP 5.3 or above
+PHP 5.4 or above
 
 License
 -------
