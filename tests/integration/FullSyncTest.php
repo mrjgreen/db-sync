@@ -26,6 +26,8 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
     {
         list($this->connection, $this->config) = $this->getConnection();
 
+        $this->setUpTables();
+
         $this->source = new \DbSync\Table($this->connection, self::DATABASE, 'customers1');
 
         $this->target = new \DbSync\Table($this->connection, self::DATABASE, 'customers2');
@@ -192,7 +194,7 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
         $expectedEqual ? $this->assertEquals($sourceData, $destData) : $this->assertNotEquals($sourceData, $destData);
     }
 
-    private function createTestDatabases($populateBoth = false, $deleteFromSource = false)
+    private function setUpTables()
     {
         $dbName = self::DATABASE;
         $this->connection->query("CREATE DATABASE IF NOT EXISTS $dbName");
@@ -201,6 +203,13 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
         $this->createTestTable($dbName . ".customers1");
         $this->createTestTable($dbName . ".customers2");
+    }
+
+    private function createTestDatabases($populateBoth = false, $deleteFromSource = false)
+    {
+        $dbName = self::DATABASE;
+        $this->connection->query("TRUNCATE TABLE $dbName.customers1");
+        $this->connection->query("TRUNCATE TABLE $dbName.customers2");
 
         $this->populateTestTable($dbName . ".customers1");
         $populateBoth and $this->populateTestTable($dbName . ".customers2");
@@ -212,8 +221,8 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
     private function createTestTable($table)
     {
         $this->connection->query("CREATE TABLE $table (
-  `customerNumber` int(11) NOT NULL DEFAULT 0,
-  `customerName` varchar(50) DEFAULT NULL,
+  `customerNumber` int(11) NOT NULL,
+  `customerName` varchar(50) NOT NULL,
   `contactLastName` varchar(50) DEFAULT NULL,
   `contactFirstName` varchar(50) DEFAULT NULL,
   `return` varchar(50) DEFAULT NULL,
