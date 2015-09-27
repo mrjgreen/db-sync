@@ -37,31 +37,30 @@ Optionally make the command available globally
 Usage:
   db-sync [options] [--] <source> <target> <table>
 
+Sync a mysql database table from one host to another using an efficient checksum algorithm to find differences
+
 Arguments:
-  source                                 The source host ip to use.
-  target                                 The target host ip to use.
-  table                                  The fully qualified database table to sync.
+  source                                     The source host ip to use.
+  target                                     The target host ip to use.
+  table                                      The fully qualified database table to sync.
 
 Options:
-  -b, --block-size=BLOCK-SIZE            The maximum block to use for when comparing [default: 1024]
-      --charset=CHARSET                  The charset to use for database connections [default: "utf8"]
-  -c, --columns=COLUMNS                  Columns to sync - all columns not "ignored" will be included by default (multiple values allowed)
-  -C, --config=CONFIG                    A path to a config.ini file from which to read values [default: "config.ini"]
-  -e, --execute                          Perform the data write on non-matching blocks
-  -i, --ignore-columns=IGNORE-COLUMNS    Columns to ignore (multiple values allowed)
-  -p, --password=PASSWORD                The password for the specified user. Will be solicited on the tty if not given.
-  -u, --user=USER                        The name of the user to connect with. [default: "joegreen"]
-  -s, --transfer-size=TRANSFER-SIZE      The maximum copy size to use for when comparing [default: 8]
-      --target.user=TARGET.USER          The name of the user to connect to the target host with if different to the source.
-      --target.table=TARGET.TABLE        The name of the table on the target host if different to the source.
-      --target.password=TARGET.PASSWORD  The password for the target host if the target user is specified. Will be solicited on the tty if not given.
-  -h, --help                             Display this help message
-  -q, --quiet                            Do not output any message
-  -V, --version                          Display this application version
-      --ansi                             Force ANSI output
-      --no-ansi                          Disable ANSI output
-  -n, --no-interaction                   Do not ask any interactive question
-  -v|vv|vvv, --verbose                   Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+  -b, --block-size=BLOCK-SIZE                The maximum block to use for when comparing [default: 1024]
+      --charset=CHARSET                      The charset to use for database connections [default: "utf8"]
+  -c, --columns=COLUMNS                      Columns to sync - all columns not "ignored" will be included by default (multiple values allowed)
+  -C, --config=CONFIG                        A path to a config.ini file from which to read values [default: "config.ini"]
+      --delete                               Remove rows from the target table that do not exist in the source
+  -e, --execute                              Perform the data write on non-matching blocks
+  -h, --help                                 Show this usage information
+  -i, --ignore-columns=IGNORE-COLUMNS        Columns to ignore. Will not be copied or used to create the hash. (multiple values allowed)
+  -x, --ignore-comparison=IGNORE-COMPARISON  Columns to ignore from the hash. Columns will still be copied. (multiple values allowed)
+  -p, --password=PASSWORD                    The password for the specified user. Will be solicited on the tty if not given.
+  -u, --user=USER                            The name of the user to connect with. [default: "joegreen"]
+  -s, --transfer-size=TRANSFER-SIZE          The maximum copy size to use for when comparing [default: 8]
+      --target.user=TARGET.USER              The name of the user to connect to the target host with if different to the source.
+      --target.table=TARGET.TABLE            The name of the table on the target host if different to the source.
+      --target.password=TARGET.PASSWORD      The password for the target host if the target user is specified. Will be solicited on the tty if not given.
+      --where=WHERE                          A where clause to apply to the tables
 ~~~
 
 

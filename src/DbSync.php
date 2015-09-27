@@ -50,10 +50,11 @@ class DbSync {
     /**
      * @param Table $source
      * @param Table $destination
-     * @param ColumnConfiguration|null $syncConfig
+     * @param ColumnConfiguration $syncConfig
+     * @param ColumnConfiguration $compareConfig
      * @return Result
      */
-    public function sync(Table $source, Table $destination, ColumnConfiguration $syncConfig = null)
+    public function sync(Table $source, Table $destination, ColumnConfiguration $syncConfig = null, ColumnConfiguration $compareConfig = null)
     {
         $tableColumns = $source->getColumns();
 
@@ -64,11 +65,14 @@ class DbSync {
             throw new \RuntimeException("The table $source does not have a primary key");
         }
 
-        $syncColumns = $syncConfig ? $syncConfig->getIntersection($tableColumns) : $tableColumns;
+        $syncConfig or $syncConfig = new ColumnConfiguration(array(), array());
+        $compareConfig or $compareConfig = new ColumnConfiguration(array(), array());
 
-        $syncColumns = array_unique(array_merge($primaryKey, $syncColumns));
+        $syncColumns = $syncConfig->getIntersection($tableColumns, $primaryKey);
 
-        $hash = $this->transferInterface->getHashStrategy()->getHashSelect($source->columnize($syncColumns));
+        $compareConfig = $compareConfig->getIntersection($syncColumns, $primaryKey);
+
+        $hash = $this->transferInterface->getHashStrategy()->getHashSelect($source->columnize($compareConfig));
 
         return $this->doComparison($source, $destination, $syncColumns, $hash, $this->transferInterface->getBlockSize());
 

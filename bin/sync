@@ -50,9 +50,16 @@ class App {
     {
         $input = new ArgvInput();
 
+        $input->bind($command->getDefinition());
+
+        if($input->getOption('help'))
+        {
+            $this->showUsage($command);
+            return 0;
+        }
+
         try
         {
-            $input->bind($command->getDefinition());
             $input->validate();
         }catch (\Exception $e)
         {
@@ -66,7 +73,8 @@ class App {
         try
         {
             $command->run(new ArgvInput(), $this->output);
-        }catch (\Exception $e)
+        }
+        catch (\Exception $e)
         {
             $this->output->writeln($this->formatter->formatBlock($e->getMessage(), 'error', true));
 

@@ -1,8 +1,13 @@
 <?php
+
 class FullSyncTest extends PHPUnit_Framework_TestCase
 {
     const DATABASE = 'dbsync_int_test';
 
+
+    /**
+     * @var \Database\Connection
+     */
     protected $connection;
 
     protected $config;
@@ -167,6 +172,8 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
     private function doSync(\DbSync\Hash\HashInterface $hash, $cols = array())
     {
         $sync = new \DbSync\DbSync(new \DbSync\Transfer\Transfer($hash, 16, 2));
+
+        $sync->setLogger(new \Psr\Log\NullLogger());
 
         $sync->delete();
         $sync->dryRun(false);

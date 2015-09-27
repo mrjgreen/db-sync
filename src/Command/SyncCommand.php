@@ -54,7 +54,9 @@ class SyncCommand extends Command
             ->addOption('config','C', InputOption::VALUE_REQUIRED, 'A path to a config.ini file from which to read values', 'config.ini')
             ->addOption('delete', null, InputOption::VALUE_NONE, 'Remove rows from the target table that do not exist in the source')
             ->addOption('execute','e', InputOption::VALUE_NONE, 'Perform the data write on non-matching blocks')
-            ->addOption('ignore-columns','i', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore')
+            ->addOption('help','h', InputOption::VALUE_NONE, 'Show this usage information')
+            ->addOption('ignore-columns','i', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore. Will not be copied or used to create the hash.')
+            ->addOption('ignore-comparison','x', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore from the hash. Columns will still be copied.')
             ->addOption('password','p', InputOption::VALUE_REQUIRED, 'The password for the specified user. Will be solicited on the tty if not given.')
             ->addOption('user','u', InputOption::VALUE_REQUIRED, 'The name of the user to connect with.', $currentUser)
             ->addOption('transfer-size','s', InputOption::VALUE_REQUIRED, 'The maximum copy size to use for when comparing', 8)
@@ -166,7 +168,8 @@ class SyncCommand extends Command
         $result = $sync->sync(
             $sourceTableObj,
             $destTableObj,
-            new ColumnConfiguration($this->input->getOption('columns'), $this->input->getOption('ignore-columns'))
+            new ColumnConfiguration($this->input->getOption('columns'), $this->input->getOption('ignore-columns')),
+            new ColumnConfiguration(array(), $this->input->getOption('ignore-comparison'))
         );
 
         $logger->notice(json_encode($result->toArray()));

@@ -13,9 +13,10 @@ class ColumnConfiguration {
         $this->except = $except;
     }
 
-    public function getIntersection(array $columns)
+    public function getIntersection(array $columns, array $merge = array())
     {
         $columns = array_values($columns);
+        $merge = array_values($merge);
 
         $comparisonFunc = function($a, $b){
             if(strtolower($a) === strtolower($b)) return 0;
@@ -32,10 +33,10 @@ class ColumnConfiguration {
             $columns = array_udiff($columns, $this->except, $comparisonFunc);
         }
 
-        return array_values($this->array_iunique($columns));
+        return $this->array_iunique(array_merge($merge, $columns));
     }
 
     private function array_iunique($array) {
-        return array_intersect_key($array, array_unique(array_map("strtolower",$array)));
+        return array_values(array_intersect_key($array, array_unique(array_map("strtolower",$array))));
     }
 }

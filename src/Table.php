@@ -122,6 +122,7 @@ class Table {
 
         $name = $this->connection->getQueryGrammar()->wrap($this->getQualifiedName());
 
+        #TODO - find non mysql specific way of doing this
         $rows = $this->connection->fetchAll("SHOW INDEX FROM $name WHERE `key_name` = 'PRIMARY'");
 
         $index = array_column($rows, 'Column_name', 'Seq_in_index');
@@ -206,7 +207,10 @@ class Table {
 
         foreach($rows as $row)
         {
-            $cols = array_intersect_key($row, $pk);
+            // Need to make sure the columns are in the same order as the primary key,
+            // so we restrict the row to only contain columns that exist in the key,
+            // then merge them back in to the pk array which ensures the correct order.
+            $cols = array_merge($pk, array_intersect_key($row, $pk));
 
             $query->whereRaw($this->getWhereNot(), $cols);
         }
@@ -242,8 +246,6 @@ class Table {
     }
 
     /**
-     * #TODO - find non mysql specific way of doing this
-     *
      * @return array
      */
     public function getPrimaryKey()
