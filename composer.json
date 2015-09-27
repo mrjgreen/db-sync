@@ -1,7 +1,7 @@
 {
   "name": "mrjgreen/db-sync",
   "type": "library",
-  "description": "Efficient MySQL comparision and sync utility",
+  "description": "Efficient MySQL comparison and sync utility",
   "autoload": {
     "psr-4": {
       "DbSync\\": "src"

@@ -211,7 +211,7 @@ class Table {
             $query->whereRaw($this->getWhereNot(), $cols);
         }
 
-        $query->delete();
+        return $query->delete()->rowCount();
     }
 
     /**

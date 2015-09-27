@@ -14,17 +14,15 @@ DbSync is a tool for efficiently comparing and synchronising two or more remote 
 In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency in a block, the tool performs a recursive checksum on each half of the block (down to a minumum block transfer size) until it finds the inconsistency.
 
 ### Notes About Deletion
-DbSync will only delete rows from the destination that no longer exist on the source when using `--delete`. Use this option with extreme caution. Alwalys perform a dry run first.
+DbSync will only delete rows from the destination that no longer exist on the source when the `--delete` option is specified. Use this option with extreme caution. Always perform a dry run first.
 
-Synchronising a table which has row deletions between syncs without using the `--delete` option will cause DbSync to find inconsistencies in any block with a deleted row. Beacuse DbSync cannot delete the target rows, it will try to copy those blocks on every run.
+If you use DbSync to synchronise a table which has row deletions on the source without using the `--delete` option, DbSync will find inconsistencies in any block with a deleted row on every run but will not be able to remove the rows from the target.
 
 ### Installation
 
-Via composer - add the package to the require section in your composer.json file:
+Via composer - run the following command in your project directory:
 
-    "require" : {    
-        "mrjgreen/db-sync"   : "3.*"
-    }
+    composer require mrjgreen/db-sync
 
 Or use the packaged archive directly
 
@@ -122,6 +120,6 @@ db-sync --user root --password mypass --target.table web_backup.customers_2 127.
 
  * [ ] 100% test coverage via full stack integration tests
  * [ ] Allow option to skip duplicate key errors
- * [ ] Allow option to delete data from target where not present on the source
+ * [x] Allow option to delete data from target where not present on the source
  * [x] Use symfony console command for sync
  * [ ] Speed up initial sync of empty table - Maybe offer combination with other tool for full fast outfile based replacement
