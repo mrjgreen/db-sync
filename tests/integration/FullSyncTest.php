@@ -71,7 +71,9 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
         $user = $this->config['username'];
         $password = $this->config['password'];
 
-        $command = __DIR__ . "/../../bin/sync $host $host $db.customers1 --target.table=$db.customers2 -u $user -p $password -e";
+        $password and $password = "-p $password";
+
+        $command = __DIR__ . "/../../bin/sync $host $host $db.customers1 --target.table=$db.customers2 -u $user $password -e";
 
         exec($command, $output, $code);
 

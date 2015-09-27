@@ -57,7 +57,7 @@ class SyncCommand extends Command
             ->addOption('help','h', InputOption::VALUE_NONE, 'Show this usage information')
             ->addOption('ignore-columns','i', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore. Will not be copied or used to create the hash.')
             ->addOption('ignore-comparison','x', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore from the hash. Columns will still be copied.')
-            ->addOption('password','p', InputOption::VALUE_REQUIRED, 'The password for the specified user. Will be solicited on the tty if not given.')
+            ->addOption('password','p', InputOption::VALUE_OPTIONAL, 'The password for the specified user. Will be solicited on the tty if not given.')
             ->addOption('user','u', InputOption::VALUE_REQUIRED, 'The name of the user to connect with.', $currentUser)
             ->addOption('transfer-size','s', InputOption::VALUE_REQUIRED, 'The maximum copy size to use for when comparing', 8)
             ->addOption('target.user',null , InputOption::VALUE_REQUIRED, 'The name of the user to connect to the target host with if different to the source.')
@@ -68,15 +68,19 @@ class SyncCommand extends Command
     }
 
     /**
-     * @param string $option
+     * @param $option
+     * @param $shortOption
      * @param null $message
      * @return mixed|string
      */
-    protected function getPassword($option = 'password', $message = null)
+    protected function getPassword($option, $shortOption, $message = null)
     {
         $password = $this->input->getOption($option);
 
-        if(!$password && $this->input->hasOption($option))
+        $rawOptions = array("--$option");
+        $shortOption and $rawOptions[] = "-$shortOption";
+
+        if(!$password && $this->input->hasParameterOption($rawOptions))
         {
             $password = $this->questioner->secret($message ?: "Enter your password: ");
         }
@@ -114,11 +118,11 @@ class SyncCommand extends Command
 
         $user = $this->input->getOption('user');
 
-        $password = $this->getPassword('password', "Enter password for local user '$user': ");
+        $password = $this->getPassword('password', 'p', "Enter password for local user '$user': ");
 
         if($remoteUser = $this->input->getOption('target.user'))
         {
-            $remotePassword = $this->getPassword('target.password', "<info>Enter password for user '$remoteUser' on target host: </info>");
+            $remotePassword = $this->getPassword('target.password', null, "<info>Enter password for user '$remoteUser' on target host: </info>");
         }else{
             $remoteUser = $user;
             $remotePassword = $password;
