@@ -55,7 +55,7 @@ Options:
   -i, --ignore-columns=IGNORE-COLUMNS        Columns to ignore. Will not be copied or used to create the hash. (multiple values allowed)
   -x, --ignore-comparison=IGNORE-COMPARISON  Columns to ignore from the hash. Columns will still be copied. (multiple values allowed)
   -p, --password=PASSWORD                    The password for the specified user. Will be solicited on the tty if not given.
-  -u, --user=USER                            The name of the user to connect with. [default: "joegreen"]
+  -u, --user=USER                            The name of the user to connect with. [default: currentuser]
   -s, --transfer-size=TRANSFER-SIZE          The maximum copy size to use for when comparing [default: 8]
       --target.user=TARGET.USER              The name of the user to connect to the target host with if different to the source.
       --target.table=TARGET.TABLE            The name of the table on the target host if different to the source.
