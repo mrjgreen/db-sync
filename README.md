@@ -134,7 +134,8 @@ Sync the table `web.customers` to a table under a different name in a different 
 db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers
 ~~~~
 
-##### Config File Example
+Config File
+-----------
 
 To avoid having to specify options repeatedly, and to avoid exposing your password on the tty you can specify a config file.
 By default DbSync will look for a file named `config.ini` in the current working directory.
