@@ -123,7 +123,7 @@ Sync every column from the table `web.customers` but do not use the `notes` or `
  with an `on update CURRENT_TIMESTAMP` field. For large tables this can offer a big performance boost.
 
 ~~~~
-db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i updated_at -x notes -x info
+db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -x notes -x info
 ~~~~
 
 ##### Example 7
