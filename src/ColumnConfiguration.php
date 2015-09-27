@@ -33,10 +33,10 @@ class ColumnConfiguration {
             $columns = array_udiff($columns, $this->except, $comparisonFunc);
         }
 
-        return $this->array_iunique(array_merge($merge, $columns));
+        return $this->arrayUniqueCI(array_merge($merge, $columns));
     }
 
-    private function array_iunique($array) {
+    private function arrayUniqueCI($array) {
         return array_values(array_intersect_key($array, array_unique(array_map("strtolower",$array))));
     }
 }

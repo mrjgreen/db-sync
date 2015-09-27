@@ -5,30 +5,6 @@ use Database\Query\Builder;
 use Database\Query\Expression;
 use Database\Query\Grammars\MySqlGrammar;
 
-class Definition {
-
-    private $columns;
-
-    private $primaryKey;
-
-    public function __construct($columns, $primaryKey)
-    {
-        $this->columns = $columns;
-
-        $this->primaryKey = $primaryKey;
-    }
-
-    public function getPrimaryKey()
-    {
-        return $this->primaryKey;
-    }
-
-    public function getColumns()
-    {
-        return $this->columns;
-    }
-}
-
 class Table {
 
     /**
