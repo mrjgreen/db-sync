@@ -159,13 +159,36 @@ target.user=admin
 target.pass=myadminpass
 ~~~
 
+Use library within project (non-commandline)
+--------------------------------------------
+
+You can include the library within your project and use the components directly:
+
+~~~PHP
+$sync = new DbSync(new Transfer(new Md5Hash(), $blockSize, $transferSize));
+
+$sync->setLogger(new YourPsrLogger());
+
+$sync->dryRun(false);
+
+$sync->delete(true);
+
+$sync->sync(
+    new Table($sourceConnection, $sourceDb, $sourceTable),
+    new Table($targetConnection, $targetDb, $targetTable),
+    new ColumnConfiguration($syncColumns, $ignoreColumns)
+);
+~~~
+
 Roadmap
 -------
 
  * [x] 100% test coverage via full stack integration tests
  * [x] Allow option to delete data from target where not present on the source
  * [x] Use symfony console command for sync
- * [ ] Allow option to skip duplicate key errors
+ * [ ] Option to re-try with back-off on lock wait timeouts
+ * [ ] Option to create missing tables on target
+ * [ ] Option to skip duplicate key errors
  * [ ] Speed up initial sync of empty table - Maybe offer combination with other tool for full fast outfile based replacement
 
 Requirements
