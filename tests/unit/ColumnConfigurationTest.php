@@ -3,77 +3,77 @@ class ColumnConfigurationTest extends PHPUnit_Framework_TestCase
 {
     public function testItReturnsFullArraySet()
     {
-        $array = array(
+        $array = [
             'one',
             'two',
             'three'
-        );
+        ];
 
-        $config = new \DbSync\ColumnConfiguration(array(), array());
+        $config = new \DbSync\ColumnConfiguration([], []);
 
         $this->assertEquals($array, $config->getIntersection($array));
     }
 
     public function testItReturnsOnlyArraySet()
     {
-        $array = array(
+        $array = [
             'one',
             'two',
             'three'
-        );
+        ];
 
-        $only = array(
+        $only = [
             'one',
             'two',
-        );
+        ];
 
-        $config = new \DbSync\ColumnConfiguration($only, array());
+        $config = new \DbSync\ColumnConfiguration($only, []);
 
         $this->assertEquals($only, $config->getIntersection($array));
     }
 
     public function testItReturnsExceptArraySet()
     {
-        $array = array(
+        $array = [
             'one',
             'two',
             'three'
-        );
+        ];
 
-        $except = array(
+        $except = [
             'two',
-        );
+        ];
 
-        $expected = array(
+        $expected = [
             'one',
             'three'
-        );
+        ];
 
-        $config = new \DbSync\ColumnConfiguration(array(), $except);
+        $config = new \DbSync\ColumnConfiguration([], $except);
 
         $this->assertEquals($expected, $config->getIntersection($array));
     }
 
     public function testItReturnsCaseInsensitiveDiffIntersect()
     {
-        $array = array(
+        $array = [
             'ONE',
             'Two',
             'three'
-        );
+        ];
 
-        $only = array(
+        $only = [
             'One',
             'TWO'
-        );
+        ];
 
-        $except = array(
+        $except = [
             'two',
-        );
+        ];
 
-        $expected = array(
+        $expected = [
             'ONE',
-        );
+        ];
 
         $config = new \DbSync\ColumnConfiguration($only, $except);
 

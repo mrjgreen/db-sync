@@ -115,7 +115,17 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i up
 
 ##### Example 6
 
-Sync every column from the table `web.customers` but do not use the `notes` or `info` fields when calculating the hash:
+Sync every column from the table `web.customers` but only use the `updated_at` fields when calculating the hash:
+
+ > Inconsistencies in other fields will not be detected. In the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host.
+
+~~~~
+db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -C updated_at
+~~~~
+
+##### Example 7
+
+Sync every column from the table `web.customers` and use all fields except for the `notes` or `info` fields when calculating the hash:
 
  > Inconsistencies in excluded fields will not be detected. In the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host.
  
@@ -123,10 +133,10 @@ Sync every column from the table `web.customers` but do not use the `notes` or `
  with an `on update CURRENT_TIMESTAMP` field. For large tables this can offer a big performance boost.
 
 ~~~~
-db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -x notes -x info
+db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -I notes -I info
 ~~~~
 
-##### Example 7
+##### Example 8
 
 Sync the table `web.customers` to a table under a different name in a different database `web_backup.customers_2`:
 
@@ -138,7 +148,7 @@ Config File
 -----------
 
 To avoid having to specify options repeatedly, and to avoid exposing your password on the tty you can specify a config file.
-By default DbSync will look for a file named `config.ini` in the current working directory.
+By default DbSync will look for a file named `dbsync.ini` in the current working directory.
 
 Example:
 

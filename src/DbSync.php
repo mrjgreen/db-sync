@@ -65,8 +65,8 @@ class DbSync {
             throw new \RuntimeException("The table $source does not have a primary key");
         }
 
-        $syncConfig or $syncConfig = new ColumnConfiguration(array(), array());
-        $compareConfig or $compareConfig = new ColumnConfiguration(array(), array());
+        $syncConfig or $syncConfig = new ColumnConfiguration([], []);
+        $compareConfig or $compareConfig = new ColumnConfiguration([], []);
 
         $syncColumns = $syncConfig->getIntersection($tableColumns, $primaryKey);
 
@@ -89,7 +89,7 @@ class DbSync {
      * @param array $index
      * @return Result
      */
-    private function doComparison(Table $source, Table $destination, $syncColumns, $hash, $blockSize, array $index = array())
+    private function doComparison(Table $source, Table $destination, $syncColumns, $hash, $blockSize, array $index = [])
     {
         $result = new Result();
 
@@ -102,7 +102,7 @@ class DbSync {
         {
             $nextIndex = $source->getKeyAtPosition($index, $blockSize);
 
-            $endIndex = $nextIndex ?: array();
+            $endIndex = $nextIndex ?: [];
 
             if($source->getHashForKey($syncColumns, $hash, $index, $endIndex) !== $destination->getHashForKey($syncColumns, $hash, $index, $endIndex)) {
 

@@ -18,7 +18,7 @@ abstract class HashAbstract implements HashInterface {
             return $this->buildChecksumQuery("$hash($cols)");
         }
 
-        $str = array();
+        $str = [];
 
         while($i--)
         {

@@ -89,10 +89,10 @@ class Table {
     {
         $columns = $this->connection
             ->table('information_schema.columns')
-            ->where(array(
+            ->where([
                 'table_schema' => $this->database,
                 'table_name' => $this->table,
-            ))->lists('column_name');
+            ])->lists('column_name');
 
 
         $name = $this->connection->getQueryGrammar()->wrap($this->getQualifiedName());
@@ -199,7 +199,7 @@ class Table {
      */
     public function insert(array $rows, array $columns)
     {
-        $update = array();
+        $update = [];
 
         foreach($columns as $column)
         {

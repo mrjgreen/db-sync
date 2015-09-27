@@ -6,7 +6,7 @@ class WhereClause {
 
     private $bindings;
 
-    public function __construct($where, array $bindings = array())
+    public function __construct($where, array $bindings = [])
     {
         $this->where = $where;
 

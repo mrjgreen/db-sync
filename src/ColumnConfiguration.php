@@ -13,7 +13,7 @@ class ColumnConfiguration {
         $this->except = $except;
     }
 
-    public function getIntersection(array $columns, array $merge = array())
+    public function getIntersection(array $columns, array $merge = [])
     {
         $columns = array_values($columns);
         $merge = array_values($merge);
@@ -36,7 +36,8 @@ class ColumnConfiguration {
         return $this->arrayUniqueCI(array_merge($merge, $columns));
     }
 
-    private function arrayUniqueCI($array) {
+    private function arrayUniqueCI($array)
+    {
         return array_values(array_intersect_key($array, array_unique(array_map("strtolower",$array))));
     }
 }

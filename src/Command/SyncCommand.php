@@ -44,26 +44,27 @@ class SyncCommand extends Command
 
         $this
             ->setName('db-sync')
-            ->setDescription('Sync a mysql database table from one host to another using an efficient checksum algorithm to find differences')
+            ->setDescription('Sync a mysql database table from one host to another using an efficient checksum algorithm to find differences.')
             ->addArgument('source', InputArgument::REQUIRED, 'The source host ip to use.')
             ->addArgument('target', InputArgument::REQUIRED, 'The target host ip to use.')
             ->addArgument('table', InputArgument::REQUIRED, 'The fully qualified database table to sync.')
-            ->addOption('block-size','b', InputOption::VALUE_REQUIRED, 'The maximum block to use for when comparing', 1024)
-            ->addOption('charset',null, InputOption::VALUE_REQUIRED, 'The charset to use for database connections', 'utf8')
-            ->addOption('columns','c', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to sync - all columns not "ignored" will be included by default')
-            ->addOption('config','C', InputOption::VALUE_REQUIRED, 'A path to a config.ini file from which to read values', 'config.ini')
-            ->addOption('delete', null, InputOption::VALUE_NONE, 'Remove rows from the target table that do not exist in the source')
-            ->addOption('execute','e', InputOption::VALUE_NONE, 'Perform the data write on non-matching blocks')
-            ->addOption('help','h', InputOption::VALUE_NONE, 'Show this usage information')
+            ->addOption('block-size','b', InputOption::VALUE_REQUIRED, 'The maximum block to use for when comparing.', 1024)
+            ->addOption('charset',null, InputOption::VALUE_REQUIRED, 'The charset to use for database connections.', 'utf8')
+            ->addOption('columns','c', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to sync - all columns not "ignored" will be included if not specified. Primary key columns will be included automatically.')
+            ->addOption('comparison','C', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns from the list of synced columns to use to create the hash - all columns not "ignored" will be included if not specified. Primary key columns will be included automatically.')
+            ->addOption('config-file','f', InputOption::VALUE_REQUIRED, 'A path to a config.ini file from which to read values.', 'dbsync.ini')
+            ->addOption('delete', null, InputOption::VALUE_NONE, 'Remove rows from the target table that do not exist in the source.')
+            ->addOption('execute','e', InputOption::VALUE_NONE, 'Perform the data write on non-matching blocks.')
+            ->addOption('help','h', InputOption::VALUE_NONE, 'Show this usage information.')
             ->addOption('ignore-columns','i', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore. Will not be copied or used to create the hash.')
-            ->addOption('ignore-comparison','x', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore from the hash. Columns will still be copied.')
+            ->addOption('ignore-comparison','I', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore from the hash. Columns will still be copied.')
             ->addOption('password','p', InputOption::VALUE_OPTIONAL, 'The password for the specified user. Will be solicited on the tty if not given.')
             ->addOption('user','u', InputOption::VALUE_REQUIRED, 'The name of the user to connect with.', $currentUser)
-            ->addOption('transfer-size','s', InputOption::VALUE_REQUIRED, 'The maximum copy size to use for when comparing', 8)
+            ->addOption('transfer-size','s', InputOption::VALUE_REQUIRED, 'The maximum copy size to use for when comparing.', 8)
             ->addOption('target.user',null , InputOption::VALUE_REQUIRED, 'The name of the user to connect to the target host with if different to the source.')
             ->addOption('target.table',null , InputOption::VALUE_REQUIRED, 'The name of the table on the target host if different to the source.')
             ->addOption('target.password',null , InputOption::VALUE_REQUIRED, 'The password for the target host if the target user is specified. Will be solicited on the tty if not given.')
-            ->addOption('where', null , InputOption::VALUE_REQUIRED, 'A where clause to apply to the tables')
+            ->addOption('where', null , InputOption::VALUE_REQUIRED, 'A where clause to apply to the tables.')
         ;
     }
 
@@ -77,7 +78,7 @@ class SyncCommand extends Command
     {
         $password = $this->input->getOption($option);
 
-        $rawOptions = array("--$option");
+        $rawOptions = ["--$option"];
         $shortOption and $rawOptions[] = "-$shortOption";
 
         if(!$password && $this->input->hasParameterOption($rawOptions))
@@ -173,7 +174,7 @@ class SyncCommand extends Command
             $sourceTableObj,
             $destTableObj,
             new ColumnConfiguration($this->input->getOption('columns'), $this->input->getOption('ignore-columns')),
-            new ColumnConfiguration(array(), $this->input->getOption('ignore-comparison'))
+            new ColumnConfiguration($this->input->getOption('comparison'), $this->input->getOption('ignore-comparison'))
         );
 
         $logger->notice(json_encode($result->toArray()));
@@ -186,7 +187,7 @@ class SyncCommand extends Command
 
     private function createConnection($host, $user, $password, $charset)
     {
-        return (new ConnectionFactory())->make(array(
+        return (new ConnectionFactory())->make([
             'host'      => $host,
             'username'  => $user,
             'password'  => $password,
@@ -194,11 +195,11 @@ class SyncCommand extends Command
             'collation' => 'utf8_general_ci',
             'driver'    => 'mysql',
 
-            'options' => array(
+            'options' => [
                 \PDO::ATTR_ERRMODE               => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_DEFAULT_FETCH_MODE    => \PDO::FETCH_ASSOC,
                 \PDO::ATTR_EMULATE_PREPARES      => false,
-            )
-        ));
+            ]
+        ]);
     }
 }

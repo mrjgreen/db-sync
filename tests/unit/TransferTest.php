@@ -50,16 +50,16 @@ class TransferTest extends PHPUnit_Framework_TestCase
 
     public function invalidParamsProvider()
     {
-        return array(
-            array(5),
-            array(2.1),
-            array(-4),
-            array(-4.4),
-            array(0),
-            array(0.23),
-            array(-0.23),
-            array("foo"),
-            array("1foo"),
-        );
+        return [
+            [5],
+            [2.1],
+            [-4],
+            [-4.4],
+            [0],
+            [0.23],
+            [-0.23],
+            ["foo"],
+            ["1foo"],
+        ];
     }
 }

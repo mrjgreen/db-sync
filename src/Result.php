@@ -48,10 +48,10 @@ class Result {
 
     public function toArray()
     {
-        return array(
+        return [
             'checked'       => $this->checkedCount,
             'transferred'   => $this->transferredCount,
             'affected'      => $this->rowCount,
-        );
+        ];
     }
 }

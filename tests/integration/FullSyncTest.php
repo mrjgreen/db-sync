@@ -25,11 +25,11 @@ class FullSyncTest extends TestAbstract
 
     public function providerHashStrategy()
     {
-        return array(
-            array(new DbSync\Hash\ShaHash()),
-            array(new DbSync\Hash\Md5Hash()),
-            array(new DbSync\Hash\CrcHash()),
-        );
+        return [
+            [new DbSync\Hash\ShaHash()],
+            [new DbSync\Hash\Md5Hash()],
+            [new DbSync\Hash\CrcHash()],
+        ];
     }
 
     public function testItRunsCommand()
@@ -56,7 +56,7 @@ class FullSyncTest extends TestAbstract
         $sync = new \DbSync\DbSync(new \DbSync\Transfer\Transfer(new \DbSync\Hash\Md5Hash(), 16, 2));
         $sync->delete();
 
-        $config = new \DbSync\ColumnConfiguration(array(), array());
+        $config = new \DbSync\ColumnConfiguration([], []);
 
 
         $this->createTestDatabases();
@@ -117,7 +117,7 @@ class FullSyncTest extends TestAbstract
      */
     public function testItCorrectlySyncsPartialData(\DbSync\Hash\HashInterface $hash)
     {
-        $cols = array('customerName', 'addressLine1', 'postalCode', 'salesRepEmployeeNumber');
+        $cols = ['customerName', 'addressLine1', 'postalCode', 'salesRepEmployeeNumber'];
 
         $this->createTestDatabases();
 
@@ -135,16 +135,16 @@ class FullSyncTest extends TestAbstract
     {
         $this->createTestDatabases();
 
-        $this->source->setWhereClause(new \DbSync\WhereClause("country = ?", array("Sweden")));
+        $this->source->setWhereClause(new \DbSync\WhereClause("country = ?", ["Sweden"]));
 
-        $this->target->setWhereClause(new \DbSync\WhereClause("country = ?", array("Sweden")));
+        $this->target->setWhereClause(new \DbSync\WhereClause("country = ?", ["Sweden"]));
 
         $this->doSync($hash);
 
         $this->compareTableReal('*', true, "WHERE country = 'Sweden'");
     }
 
-    private function doSync(\DbSync\Hash\HashInterface $hash, $cols = array())
+    private function doSync(\DbSync\Hash\HashInterface $hash, $cols = [])
     {
         $sync = new \DbSync\DbSync(new \DbSync\Transfer\Transfer($hash, 16, 2));
 
@@ -153,7 +153,7 @@ class FullSyncTest extends TestAbstract
         $sync->delete();
         $sync->dryRun(false);
 
-        return $sync->sync($this->source, $this->target, new \DbSync\ColumnConfiguration($cols, array()));
+        return $sync->sync($this->source, $this->target, new \DbSync\ColumnConfiguration($cols, []));
     }
 
     private function compareTableReal($cols = '*', $expectedEqual = true, $whereClause = '')

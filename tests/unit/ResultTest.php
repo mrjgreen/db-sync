@@ -17,11 +17,11 @@ class ResultTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(7, $result->getRowsChecked());
         $this->assertEquals(3, $result->getRowsTransferred());
 
-        $expectedArray = array(
+        $expectedArray = [
             'checked'       => 7,
             'transferred'   => 3,
             'affected'      => 13,
-        );
+        ];
 
         $this->assertEquals($expectedArray, $result->toArray());
     }
