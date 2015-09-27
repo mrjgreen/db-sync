@@ -118,6 +118,7 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i up
 Sync every column from the table `web.customers` but do not use the `notes` or `info` fields when calculating the hash:
 
  > Note:
+ 
     * inconsistencies in excluded fields will not be detected
     * in the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host
   
