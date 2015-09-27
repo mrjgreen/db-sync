@@ -74,6 +74,8 @@ class DbSync {
 
         $hash = $this->transferInterface->getHashStrategy()->getHashSelect($source->columnize($compareConfig));
 
+        $this->logger->info("Hash calculation: \n\n" . $hash);
+
         return $this->doComparison($source, $destination, $syncColumns, $hash, $this->transferInterface->getBlockSize());
 
     }
