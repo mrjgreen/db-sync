@@ -1,17 +1,9 @@
 <?php
 
-class FullSyncTest extends PHPUnit_Framework_TestCase
+require_once __DIR__ . '/TestAbstract.php';
+
+class FullSyncTest extends TestAbstract
 {
-    const DATABASE = 'dbsync_int_test';
-
-
-    /**
-     * @var \Database\Connection
-     */
-    protected $connection;
-
-    protected $config;
-
     /**
      * @var DbSync\Table
      */
@@ -24,32 +16,11 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        list($this->connection, $this->config) = $this->getConnection();
+        parent::setUp();
 
-        $this->setUpTables();
+        $this->source = new \DbSync\Table($this->connection, self::DATABASE, 'dbsynctest1');
 
-        $this->source = new \DbSync\Table($this->connection, self::DATABASE, 'customers1');
-
-        $this->target = new \DbSync\Table($this->connection, self::DATABASE, 'customers2');
-    }
-
-    private function getConnection()
-    {
-        $configs = include __DIR__ . '/config.php';
-
-        foreach($configs as $config)
-        {
-            try{
-                return array(
-                    (new \Database\Connectors\ConnectionFactory())->make($config),
-                    $config
-                );
-            }catch (\PDOException $e) {
-
-            }
-        }
-
-        throw new \InvalidArgumentException("No valid database configs");
+        $this->target = new \DbSync\Table($this->connection, self::DATABASE, 'dbsynctest2');
     }
 
     public function providerHashStrategy()
@@ -73,7 +44,7 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
 
         $password and $password = "-p $password";
 
-        $command = __DIR__ . "/../../bin/sync $host $host $db.customers1 --target.table=$db.customers2 -u $user $password -e";
+        $command = __DIR__ . "/../../bin/sync $host $host $db.dbsynctest1 --target.table=$db.dbsynctest2 -u $user $password -e";
 
         exec($command, $output, $code);
 
@@ -196,28 +167,17 @@ class FullSyncTest extends PHPUnit_Framework_TestCase
         $expectedEqual ? $this->assertEquals($sourceData, $destData) : $this->assertNotEquals($sourceData, $destData);
     }
 
-    private function setUpTables()
-    {
-        $dbName = self::DATABASE;
-        $this->connection->query("CREATE DATABASE IF NOT EXISTS $dbName");
-        $this->connection->query("DROP TABLE IF EXISTS $dbName.customers1");
-        $this->connection->query("DROP TABLE IF EXISTS $dbName.customers2");
-
-        $this->createTestTable($dbName . ".customers1");
-        $this->createTestTable($dbName . ".customers2");
-    }
-
     private function createTestDatabases($populateBoth = false, $deleteFromSource = false)
     {
         $dbName = self::DATABASE;
-        $this->connection->query("TRUNCATE TABLE $dbName.customers1");
-        $this->connection->query("TRUNCATE TABLE $dbName.customers2");
+        $this->connection->query("TRUNCATE TABLE $dbName.dbsynctest1");
+        $this->connection->query("TRUNCATE TABLE $dbName.dbsynctest2");
 
-        $this->populateTestTable($dbName . ".customers1");
-        $populateBoth and $this->populateTestTable($dbName . ".customers2");
+        $this->populateTestTable($dbName . ".dbsynctest1");
+        $populateBoth and $this->populateTestTable($dbName . ".dbsynctest2");
 
         // Create a "source has deleted rows" situation
-        $deleteFromSource and $this->connection->query("DELETE FROM $dbName.customers1 WHERE customerNumber % 12 = 0");
+        $deleteFromSource and $this->connection->query("DELETE FROM $dbName.dbsynctest1 WHERE customerNumber % 12 = 0");
     }
 
     private function createTestTable($table)
