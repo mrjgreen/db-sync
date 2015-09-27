@@ -118,8 +118,8 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i up
 Sync every column from the table `web.customers` but do not use the `notes` or `info` fields when calculating the hash:
 
  > Inconsistencies in excluded fields will not be detected. In the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host.
-   
-   This is especially useful for tables with long text fields that don't change after initial insert, or which are associated
+ 
+ > This is especially useful for tables with long text fields that don't change after initial insert, or which are associated
  with an `on update CURRENT_TIMESTAMP` field. For large tables this can offer a big performance boost.
 
 ~~~~
