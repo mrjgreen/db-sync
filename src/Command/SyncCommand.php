@@ -97,7 +97,7 @@ class SyncCommand extends Command
 
         $this->input = $input;
 
-        if(($config = $this->input->getOption('config')) && is_file($config)){
+        if(($config = $this->input->getOption('config-file')) && is_file($config)){
 
             $this->output->writeln("Reading ini file '$config'");
             foreach(parse_ini_file($config) as $name => $value){
