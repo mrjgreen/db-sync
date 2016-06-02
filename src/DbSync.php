@@ -123,7 +123,7 @@ class DbSync {
             {
                 $result->addRowsChecked($blockSize);
 
-                $this->logger->info("Written '{$result->getRowsAffected()}' rows, checked '{$result->getRowsChecked()}' rows for tables '$source' => '$destination'");
+                $this->logger->debug("Written '{$result->getRowsAffected()}' rows, checked '{$result->getRowsChecked()}' rows for tables '$source' => '$destination'");
             }
 
             $index = $nextIndex;
@@ -134,6 +134,8 @@ class DbSync {
                 break;
             }
         }
+
+        $this->logger->info("Written '{$result->getRowsAffected()}' rows, checked '{$result->getRowsChecked()}' rows for tables '$source' => '$destination'");
 
         return $result;
     }
