@@ -58,7 +58,7 @@ Options:
   -C, --comparison=COMPARISON                Columns from the list of synced columns to use to create the hash - all columns not "ignored" will be included if not specified. Primary key columns will be included automatically. (multiple values allowed)
   -f, --config-file=CONFIG-FILE              A path to a config.ini file from which to read values. [default: "dbsync.ini"]
       --delete                               Remove rows from the target table that do not exist in the source.
-  -e, --execute                              Perform the data write on non-matching blocks.
+  -e, --execute                              Perform the data write on non-matching blocks. Without this option only a dry run will be                                                performed.
   -h, --help                                 Show this usage information.
   -i, --ignore-columns=IGNORE-COLUMNS        Columns to ignore. Will not be copied or used to create the hash. (multiple values allowed)
   -I, --ignore-comparison=IGNORE-COMPARISON  Columns to ignore from the hash. Columns will still be copied. (multiple values allowed)
@@ -69,8 +69,8 @@ Options:
       --target.table=TARGET.TABLE            The name of the table on the target host if different to the source.
       --target.password=TARGET.PASSWORD      The password for the target host if the target user is specified. Will be solicited on the tty if not given.
       --where=WHERE                          A where clause to apply to the tables.
+  -v  --verbose                              Enable verbose output.
 ~~~
-
 
 ##### Example 1
 
