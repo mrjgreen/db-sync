@@ -12,7 +12,7 @@ DbSync
 What is it?
 -----------
 
-DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables. 
+DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables.
 
 In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency in a block, the tool performs a recursive checksum on each half of the block (down to a minumum block transfer size) until it finds the inconsistency.
 
@@ -35,7 +35,7 @@ Or use the packaged archive directly
 
     wget https://github.com/mrjgreen/db-sync/raw/v3/db-sync.phar -O db-sync.phar
     chmod a+x db-sync.phar
-    
+
 Optionally make the command available globally
 
     sudo mv db-sync.phar /usr/bin/db-sync
@@ -129,7 +129,7 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -C up
 Sync every column from the table `web.customers` and use all fields except for the `notes` or `info` fields when calculating the hash:
 
  > Inconsistencies in excluded fields will not be detected. In the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host.
- 
+
  > This is especially useful for tables with long text fields that don't change after initial insert, or which are associated
  with an `on update CURRENT_TIMESTAMP` field. For large tables this can offer a big performance boost.
 
@@ -166,7 +166,13 @@ Use library within project (non-commandline)
 You can include the library within your project and use the components directly:
 
 ~~~PHP
-$sync = new DbSync(new Transfer(new Md5Hash(), $blockSize, $transferSize));
+use \DbSync\DbSync;
+use \DbSync\Transfer;
+use \DbSync\Hash\ShaHash;
+use \DbSync\Table;
+use \DbSync\ColumnConfiguration;
+
+$sync = new DbSync(new Transfer(new ShaHash(), $blockSize, $transferSize));
 
 $sync->setLogger(new YourPsrLogger());
 
