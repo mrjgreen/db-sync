@@ -40,7 +40,7 @@ class App {
     private function showUsage(Command $command)
     {
         $this->output->writeln("");
-        $this->output->writeln("<info>" . $command->getDescription() . "</info>");
+        $this->output->writeln($command->getDescription());
         $this->output->writeln("");
         $this->descriptor->describe($this->output, $command->getDefinition());
         $this->output->writeln("");
@@ -77,11 +77,11 @@ class App {
         }
         catch (\Exception $e)
         {
-            $this->output->writeln($this->formatter->formatBlock($e->getMessage(), 'error', true));
+            $this->output->writeln($e->getMessage());
 
-            $this->output->writeln('<comment>' . $e->getTraceAsString() . '</comment>');
+            $this->output->writeln($e->getTraceAsString());
 
-            return $e->getCode() ?: 1;
+            return 1;
         }
 
         return 0;
@@ -91,4 +91,4 @@ class App {
 
 $code = (new App())->run(new SyncCommand());
 
-exit($code);
+exit(intval($code));

@@ -51,6 +51,25 @@ class FullSyncTest extends TestAbstract
         $this->assertEquals(0, $code);
     }
 
+    public function testAFailedCommandReturnsNonZeroErrorCode()
+    {
+        $this->createTestDatabases();
+
+        $db = self::DATABASE;
+
+        $host = $this->config['host'];
+        $user = $this->config['username'];
+        $password = $this->config['password'];
+
+        $password and $password = "-p $password";
+
+        $command = __DIR__ . "/../../bin/sync $host $host $db.missing_table --target.table=$db.missing_table -u $user $password -e";
+
+        exec($command, $output, $code);
+
+        $this->assertNotEquals(0, $code);
+    }
+
     public function testADryRunDoesNothing()
     {
         $sync = new \DbSync\DbSync(new \DbSync\Transfer\Transfer(new \DbSync\Hash\Md5Hash(), 16, 2));
