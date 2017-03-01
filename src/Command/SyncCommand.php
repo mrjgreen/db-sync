@@ -198,10 +198,22 @@ class SyncCommand extends Command
         return explode('.', $name, 2);
     }
 
+    private function parseHostPort($host)
+    {
+        $parts = explode(':', $host, 2);
+
+        isset($parts[1]) or $parts[1] = 3306;
+
+        return $parts;
+    }
+
     private function createConnection($host, $user, $password, $charset)
     {
+        list($host, $port) = $this->parseHostPort($host);
+
         return (new ConnectionFactory())->make([
             'host'      => $host,
+            'port'      => $port,
             'username'  => $user,
             'password'  => $password,
             'charset'   => $charset,
