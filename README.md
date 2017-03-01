@@ -42,7 +42,7 @@ Optionally make the command available globally
 
 ~~~
 Usage:
-  db-sync [options] [--] <source> <target> <table>
+db-sync [options] <source> <target> <table>
 
 Sync a mysql database table from one host to another using an efficient checksum algorithm to find differences.
 
@@ -54,21 +54,23 @@ Arguments:
 Options:
   -b, --block-size=BLOCK-SIZE                The maximum block to use for when comparing. [default: 1024]
       --charset=CHARSET                      The charset to use for database connections. [default: "utf8"]
-  -c, --columns=COLUMNS                      Columns to sync - all columns not "ignored" will be included if not specified. Primary key columns will be included automatically. (multiple values allowed)
-  -C, --comparison=COMPARISON                Columns from the list of synced columns to use to create the hash - all columns not "ignored" will be included if not specified. Primary key columns will be included automatically. (multiple values allowed)
+  -c, --columns=COLUMNS                      Columns to sync - all columns not "ignored" will be included....
+  -C, --comparison=COMPARISON                Columns from the list of synced columns to use to create the...
   -f, --config-file=CONFIG-FILE              A path to a config.ini file from which to read values. [default: "dbsync.ini"]
       --delete                               Remove rows from the target table that do not exist in the source.
   -e, --execute                              Perform the data write on non-matching blocks.
   -h, --help                                 Show this usage information.
-  -i, --ignore-columns=IGNORE-COLUMNS        Columns to ignore. Will not be copied or used to create the hash. (multiple values allowed)
-  -I, --ignore-comparison=IGNORE-COMPARISON  Columns to ignore from the hash. Columns will still be copied. (multiple values allowed)
-  -p, --password[=PASSWORD]                  The password for the specified user. Will be solicited on the tty if not given.
-  -u, --user=USER                            The name of the user to connect with. [default: <CURRENT USER>]
+  -i, --ignore-columns=IGNORE-COLUMNS        Columns to ignore. Will not be copied or used to create the hash....
+  -I, --ignore-comparison=IGNORE-COMPARISON  Columns to ignore from the hash. Columns will still be copied....
+  -p, --password[=PASSWORD]                  The password for the specified user. Will be solicited on the tty if...
+  -u, --user=USER                            The name of the user to connect with. [default: "USER"]
   -s, --transfer-size=TRANSFER-SIZE          The maximum copy size to use for when comparing. [default: 8]
-      --target.user=TARGET.USER              The name of the user to connect to the target host with if different to the source.
+      --target.user=TARGET.USER              The name of the user to connect to the target host with if different...
       --target.table=TARGET.TABLE            The name of the table on the target host if different to the source.
-      --target.password=TARGET.PASSWORD      The password for the target host if the target user is specified. Will be solicited on the tty if not given.
+      --target.password=TARGET.PASSWORD      The password for the target host if the target user is specified....
       --where=WHERE                          A where clause to apply to the tables.
+  -v, --verbose                              Enable verbose output.
+  -q, --quiet                                Disable output, overrides "verbose" option.
 ~~~
 
 

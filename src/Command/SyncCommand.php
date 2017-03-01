@@ -67,6 +67,7 @@ class SyncCommand extends Command
             ->addOption('target.password',null , InputOption::VALUE_REQUIRED, 'The password for the target host if the target user is specified. Will be solicited on the tty if not given.')
             ->addOption('where', null , InputOption::VALUE_REQUIRED, 'A where clause to apply to the tables.')
             ->addOption('verbose', 'v' , InputOption::VALUE_NONE, 'Enable verbose output.')
+            ->addOption('quiet', 'q' , InputOption::VALUE_NONE, 'Disable output, overrides "verbose" option.')
         ;
     }
 
@@ -100,6 +101,11 @@ class SyncCommand extends Command
             $this->output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
         }else {
             $this->output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
+        }
+
+        if($input->getOption('quiet'))
+        {
+          $this->output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         }
 
         $this->input = $input;
