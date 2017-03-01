@@ -11,6 +11,10 @@
   "bin": [
     "bin/sync"
   ],
+  "scripts" : {
+    "test" : "php vendor/bin/phpunit",
+    "package" : "composer install --no-dev && ./phar-composer.phar build"
+  },
   "require": {
     "psr/log": "^1.0",
     "symfony/console": "^3.2",
