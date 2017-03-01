@@ -7,7 +7,7 @@ DbSync
 
 ### WARNING - This package modifies database tables. Use with extreme caution and back up databases before running.
 
-#### Always perform a dry run first before specifying the `--execute (-e)` option.
+#### Always perform a dry run (this is the default action) first before specifying the `--execute (-e)` option.
 
 What is it?
 -----------
@@ -73,6 +73,10 @@ Options:
   -q, --quiet                                Disable output, overrides "verbose" option.
 ~~~
 
+### Examples
+
+*Note - All of these commands will perform a "dry-run" only. To execute the insert/update statement against the target
+database, you must specify the --execute (-e) option*
 
 ##### Example 1
 
