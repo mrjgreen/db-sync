@@ -76,10 +76,10 @@ Options:
 
 ##### Example 1
 
-Sync the table `web.customers` from one host to another:
+Sync the table `web.customers` from one host to another (non-standard port on target):
 
 ~~~~
-db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers
+db-sync --user root --password mypass 127.0.0.1 111.222.3.44:13306 web.customers
 ~~~~
 
 ##### Example 2
