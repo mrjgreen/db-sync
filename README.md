@@ -4,6 +4,9 @@ DbSync
 [![Build Status](https://travis-ci.org/mrjgreen/db-sync.svg?branch=v3)](https://travis-ci.org/mrjgreen/db-sync)
 [![Coverage Status](https://coveralls.io/repos/mrjgreen/db-sync/badge.svg?branch=v3&service=github)](https://coveralls.io/github/mrjgreen/db-sync?branch=v3)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/34585f74-7436-47c0-8b40-41265ef5a1ba/mini.png)](https://insight.sensiolabs.com/projects/34585f74-7436-47c0-8b40-41265ef5a1ba)
+[![Latest Stable Version](https://poser.pugx.org/mrjgreen/db-sync/v/stable)](https://packagist.org/packages/mrjgreen/db-sync)
+[![License](https://poser.pugx.org/mrjgreen/db-sync/license)](https://packagist.org/packages/mrjgreen/db-sync)
+[![Total Downloads](https://poser.pugx.org/mrjgreen/db-sync/downloads)](https://packagist.org/packages/mrjgreen/db-sync)
 
 ### WARNING - This package modifies database tables. Use with extreme caution and back up databases before running.
 
