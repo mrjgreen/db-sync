@@ -166,7 +166,7 @@ Example:
 user=root
 password=mypass
 target.user=admin
-target.pass=myadminpass
+target.password=myadminpass
 ~~~
 
 Use library within project (non-commandline)
