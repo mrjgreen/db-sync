@@ -184,7 +184,7 @@ $columnConfig = new ColumnConfiguration($syncColumns, $ignoreColumns);
 $sourceTable->setWhereClause(new WhereClause("column_name = ?", ['value']));
 $targetTable->setWhereClause(new WhereClause("column_name > ?", ['value']));
 
-$sync->sync( $sourceTable, $targetTable, $columnConfig);
+$sync->sync($sourceTable, $targetTable, $columnConfig);
 ~~~
 
 Roadmap
