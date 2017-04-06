@@ -28,4 +28,26 @@ abstract class HashAbstract implements HashInterface {
 
         return "CONCAT(" . implode(',', $str) . ")";
     }
+
+    /**
+     * @param $hash
+     * @return HashInterface
+     */
+    public static function buildHashByName($hash)
+    {
+        $hashes = [
+            'crc32' => new CrcHash(),
+            'md5'   => new Md5Hash(),
+            'sha1'  => new ShaHash(),
+        ];
+
+        if(!isset($hashes[$hash]))
+        {
+            $choose = implode(',', array_keys($hashes));
+
+            throw new \InvalidArgumentException("Hash algorithm '$hash' does not exist. Choose from: $choose");
+        }
+
+        return $hashes[$hash];
+    }
 }
