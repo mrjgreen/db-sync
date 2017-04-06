@@ -198,11 +198,17 @@ $sync->dryRun(false);
 
 $sync->delete(true);
 
-$sync->sync(
-    new Table($sourceConnection, $sourceDb, $sourceTable),
-    new Table($targetConnection, $targetDb, $targetTable),
-    new ColumnConfiguration($syncColumns, $ignoreColumns)
-);
+$sourceTable = new Table($sourceConnection, $sourceDb, $sourceTable);
+$targetTable = new Table($targetConnection, $targetDb, $targetTable);
+
+// if you only want specific columns 
+$columnConfig = new ColumnConfiguration($syncColumns, $ignoreColumns);
+
+// optionally apply a where clause
+$sourceTable->setWhereClause(new WhereClause("column_name = ?", ['value']));
+$targetTable->setWhereClause(new WhereClause("column_name > ?", ['value']));
+
+$sync->sync($sourceTable, $targetTable, $columnConfig);
 ~~~
 
 Roadmap
