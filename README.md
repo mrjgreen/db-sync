@@ -178,15 +178,13 @@ $sourceTable = new Table($sourceConnection, $sourceDb, $sourceTable);
 $targetTable = new Table($targetConnection, $targetDb, $targetTable);
 
 // if you only want specific columns 
-$ColumnConfig= new ColumnConfiguration($syncColumns, $ignoreColumns);
+$columnConfig = new ColumnConfiguration($syncColumns, $ignoreColumns);
 
-// if you need the where clause
-$sourceTable->setWhereClause(new \DbSync\WhereClause("column_name = ?", ['value']));
-$targetTable->setWhereClause(new \DbSync\WhereClause("column_name > ?", ['value']));
+// optionally apply a where clause
+$sourceTable->setWhereClause(new WhereClause("column_name = ?", ['value']));
+$targetTable->setWhereClause(new WhereClause("column_name > ?", ['value']));
 
-$sync->sync( $sourceTable, $targetTable
-//    , $ColumnConfig
-);
+$sync->sync( $sourceTable, $targetTable, $columnConfig);
 ~~~
 
 Roadmap
