@@ -29,6 +29,10 @@ abstract class HashAbstract implements HashInterface {
         return "CONCAT(" . implode(',', $str) . ")";
     }
 
+    /**
+     * @param $hash
+     * @return HashInterface
+     */
     public static function buildHashByName($hash)
     {
         $hashes = [
@@ -41,7 +45,7 @@ abstract class HashAbstract implements HashInterface {
         {
             $choose = implode(',', array_keys($hashes));
 
-            throw new \UnexpectedValueException("Hash algorithm '$hash' does not exist. Choose from: $choose");
+            throw new \InvalidArgumentException("Hash algorithm '$hash' does not exist. Choose from: $choose");
         }
 
         return $hashes[$hash];
