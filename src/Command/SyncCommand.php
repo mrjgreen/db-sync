@@ -54,7 +54,7 @@ class SyncCommand extends Command
             ->addOption('comparison','C', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns from the list of synced columns to use to create the hash - all columns not "ignored" will be included if not specified. Primary key columns will be included automatically.')
             ->addOption('config-file','f', InputOption::VALUE_REQUIRED, 'A path to a config.ini file from which to read values.', 'dbsync.ini')
             ->addOption('delete', null, InputOption::VALUE_NONE, 'Remove rows from the target table that do not exist in the source.')
-            ->addOption('execute','e', InputOption::VALUE_NONE, 'Perform the data write on non-matching blocks.')
+            ->addOption('execute','e', InputOption::VALUE_NONE, 'Perform the data write on non-matching blocks. Without this option only a dry run will be performed.')
             ->addOption('help','h', InputOption::VALUE_NONE, 'Show this usage information.')
             ->addOption('ignore-columns','i', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore. Will not be copied or used to create the hash.')
             ->addOption('ignore-comparison','I', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore from the hash. Columns will still be copied.')
