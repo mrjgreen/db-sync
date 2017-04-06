@@ -17,14 +17,19 @@ What is it?
 
 DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables.
 
-In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have an inconsistency in a block, the tool performs a recursive checksum on each half of the block (down to a minumum block transfer size) until it finds the inconsistency.
+In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) 
+over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have 
+an inconsistency in a block, the tool performs a recursive checksum on each half of the block (down to a minimum 
+block transfer size) until it finds the inconsistency.
 
 
 Notes About Deletion
 --------------------
-DbSync will only delete rows from the destination that no longer exist on the source when the `--delete` option is specified. Use this option with extreme caution. Always perform a dry run first.
+DbSync will only delete rows from the destination that no longer exist on the source when the `--delete` option is specified. 
+Use this option with extreme caution. Always perform a dry run first.
 
-If you use DbSync to synchronise a table which has row deletions on the source without using the `--delete` option, DbSync will find inconsistencies in any block with a deleted row on every run but will not be able to remove the rows from the target.
+If you use DbSync to synchronise a table which has row deletions on the source without using the `--delete` option, 
+DbSync will find inconsistencies in any block with a deleted row on every run but will not be able to remove the rows from the target.
 
 
 Installation
@@ -63,6 +68,7 @@ Options:
       --delete                               Remove rows from the target table that do not exist in the source.
   -e, --execute                              Perform the data write on non-matching blocks.
   -h, --help                                 Show this usage information.
+  -H, --hash                                 Specify the hash algorithm used to generate the comparison hash. [default: "md5"]
   -i, --ignore-columns=IGNORE-COLUMNS        Columns to ignore. Will not be copied or used to create the hash....
   -I, --ignore-comparison=IGNORE-COMPARISON  Columns to ignore from the hash. Columns will still be copied....
   -p, --password[=PASSWORD]                  The password for the specified user. Will be solicited on the tty if...
@@ -92,9 +98,9 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44:13306 web.customers
 ##### Example 2
 
 Sync the table `web.customers` from one host to another, deleting rows from the target that no longer exist on the source:
-
+Use the SHA1 hash.
 ~~~~
-db-sync --user root --password mypass --delete 127.0.0.1 111.222.3.44 web.customers
+db-sync --user root --password mypass --hash sha1 --delete 127.0.0.1 111.222.3.44 web.customers
 ~~~~
 
 ##### Example 3
@@ -127,7 +133,8 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i up
 
 Sync every column from the table `web.customers` but only use the `updated_at` fields when calculating the hash:
 
- > Inconsistencies in other fields will not be detected. In the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host.
+ > Inconsistencies in other fields will not be detected. In the event of a hash inconsistency in fields which are 
+ included, the excluded fields will still be copied to the target host.
 
 ~~~~
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -C updated_at
@@ -137,7 +144,8 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -C up
 
 Sync every column from the table `web.customers` and use all fields except for the `notes` or `info` fields when calculating the hash:
 
- > Inconsistencies in excluded fields will not be detected. In the event of a hash inconsistency in fields which are included, the excluded fields will still be copied to the target host.
+ > Inconsistencies in excluded fields will not be detected. In the event of a hash inconsistency in fields which are included, 
+ the excluded fields will still be copied to the target host.
 
  > This is especially useful for tables with long text fields that don't change after initial insert, or which are associated
  with an `on update CURRENT_TIMESTAMP` field. For large tables this can offer a big performance boost.
@@ -153,6 +161,7 @@ Sync the table `web.customers` to a table under a different name in a different 
 ~~~~
 db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers
 ~~~~
+
 
 Config File
 -----------
