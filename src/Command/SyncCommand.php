@@ -3,7 +3,10 @@
 use Database\Connectors\ConnectionFactory;
 use DbSync\ColumnConfiguration;
 use DbSync\DbSync;
+use DbSync\Hash\CrcHash;
+use DbSync\Hash\HashAbstract;
 use DbSync\Hash\Md5Hash;
+use DbSync\Hash\ShaHash;
 use DbSync\Table;
 use DbSync\Transfer\Transfer;
 use DbSync\WhereClause;
@@ -55,6 +58,7 @@ class SyncCommand extends Command
             ->addOption('config-file','f', InputOption::VALUE_REQUIRED, 'A path to a config.ini file from which to read values.', 'dbsync.ini')
             ->addOption('delete', null, InputOption::VALUE_NONE, 'Remove rows from the target table that do not exist in the source.')
             ->addOption('execute','e', InputOption::VALUE_NONE, 'Perform the data write on non-matching blocks.')
+            ->addOption('hash','H', InputOption::VALUE_REQUIRED, 'Specify the hash algorithm used to generate the comparison hash.', 'md5')
             ->addOption('help','h', InputOption::VALUE_NONE, 'Show this usage information.')
             ->addOption('ignore-columns','i', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore. Will not be copied or used to create the hash.')
             ->addOption('ignore-comparison','I', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Columns to ignore from the hash. Columns will still be copied.')
@@ -165,7 +169,9 @@ class SyncCommand extends Command
             $logger->notice("Dry run only. No data will be written to target.");
         }
 
-        $sync = new DbSync(new Transfer(new Md5Hash(), $this->input->getOption('block-size'), $this->input->getOption('transfer-size')));
+        $hash = HashAbstract::buildHashByName($this->input->getOption('hash'));
+
+        $sync = new DbSync(new Transfer($hash, $this->input->getOption('block-size'), $this->input->getOption('transfer-size')));
 
         $sync->dryRun($dryRun);
 
