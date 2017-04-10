@@ -97,8 +97,7 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44:13306 web.customers
 
 ##### Example 2
 
-Sync the table `web.customers` from one host to another, deleting rows from the target that no longer exist on the source:
-Use the SHA1 hash.
+Sync the table `web.customers` from one host to another, deleting rows from the target that no longer exist on the source (using SHA1 hash for comparison):
 ~~~~
 db-sync --user root --password mypass --hash sha1 --delete 127.0.0.1 111.222.3.44 web.customers
 ~~~~
