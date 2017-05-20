@@ -170,19 +170,19 @@ By default DbSync will look for a file named `dbsync.ini` in the current working
 
 Example:
 
-~~~ini
+```ini
 user=root
 password=mypass
 target.user=admin
 target.password=myadminpass
-~~~
+```
 
 Use library within project (non-commandline)
 --------------------------------------------
 
 You can include the library within your project and use the components directly:
 
-~~~PHP
+```PHP
 use \DbSync\DbSync;
 use \DbSync\Transfer;
 use \DbSync\Hash\ShaHash;
@@ -203,12 +203,14 @@ $targetTable = new Table($targetConnection, $targetDb, $targetTable);
 // if you only want specific columns 
 $columnConfig = new ColumnConfiguration($syncColumns, $ignoreColumns);
 
-// optionally apply a where clause
+// optionally apply a where clause - this can be useful when sync-ing large tables, where
+// you can make use of a column to rule out large portions of the data
+// that you know haven't changed, such as columns with "on update CURRENT_TIMESTAMP" etc..
 $sourceTable->setWhereClause(new WhereClause("column_name = ?", ['value']));
 $targetTable->setWhereClause(new WhereClause("column_name > ?", ['value']));
 
 $sync->sync($sourceTable, $targetTable, $columnConfig);
-~~~
+```
 
 Roadmap
 -------
