@@ -48,7 +48,7 @@ Optionally make the command available globally
 
     sudo mv db-sync.phar /usr/bin/db-sync
 
-~~~
+```
 Usage:
 db-sync [options] <source> <target> <table>
 
@@ -80,7 +80,7 @@ Options:
       --where=WHERE                          A where clause to apply to the tables.
   -v, --verbose                              Enable verbose output.
   -q, --quiet                                Disable output, overrides "verbose" option.
-~~~
+```
 
 ### Examples
 
@@ -91,24 +91,24 @@ database, you must specify the --execute (-e) option*
 
 Sync the table `web.customers` from one host to another (non-standard port on target):
 
-~~~~
+```
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44:13306 web.customers
-~~~~
+```
 
 ##### Example 2
 
 Sync the table `web.customers` from one host to another, deleting rows from the target that no longer exist on the source (using SHA1 hash for comparison):
-~~~~
+```
 db-sync --user root --password mypass --hash sha1 --delete 127.0.0.1 111.222.3.44 web.customers
-~~~~
+```
 
 ##### Example 3
 
 Sync the table `web.customers` from one host to another using different credentials:
 
-~~~~
+```
 db-sync --user root --password mypass --target.user admin --target.password password 127.0.0.1 111.222.3.44 web.customers:
-~~~~
+```
 
 ##### Example 4
 
@@ -116,17 +116,17 @@ Sync only the `email` and `name` fields from the table `web.customers`:
 
  > NB. The primary key will automatically be included in the column set
 
-~~~~
+```
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -c email -c name
-~~~~
+```
 
 ##### Example 5
 
 Sync every column except for the `updated_at` fields from the table `web.customers`:
 
-~~~~
+```
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i updated_at
-~~~~
+```
 
 ##### Example 6
 
@@ -135,9 +135,9 @@ Sync every column from the table `web.customers` but only use the `updated_at` f
  > Inconsistencies in other fields will not be detected. In the event of a hash inconsistency in fields which are 
  included, the excluded fields will still be copied to the target host.
 
-~~~~
+```
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -C updated_at
-~~~~
+```
 
 ##### Example 7
 
@@ -149,17 +149,17 @@ Sync every column from the table `web.customers` and use all fields except for t
  > This is especially useful for tables with long text fields that don't change after initial insert, or which are associated
  with an `on update CURRENT_TIMESTAMP` field. For large tables this can offer a big performance boost.
 
-~~~~
+```
 db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -I notes -I info
-~~~~
+```
 
 ##### Example 8
 
 Sync the table `web.customers` to a table under a different name in a different database `web_backup.customers_2`:
 
-~~~~
+```
 db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers
-~~~~
+```
 
 
 Config File
