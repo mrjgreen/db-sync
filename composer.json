@@ -12,8 +12,15 @@
     "bin/sync"
   ],
   "scripts" : {
-    "test" : "php vendor/bin/phpunit",
-    "package" : "composer install --no-dev && ./phar-composer.phar build"
+    "pretest": "@docker:start",
+    "test" : "phpunit",
+    "package" : "composer install --no-dev && ./phar-composer.phar build",
+    "docker:setup": ["@docker:create", "@docker:start"],
+    "docker:clean": "@docker:remove",
+    "docker:create": "docker run -p 0.0.0.0:33556:3306 -v $(pwd)/tests/integration/sql/:/docker-entrypoint-initdb.d/ --name db-sync-test-mysql -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_ROOT_HOST=% -e MYSQL_DATABASE=dbsync_int_test -d mysql/mysql-server:5.7",
+    "docker:remove": ["@docker:stop", "docker rm db-sync-test-mysql"],
+    "docker:start": "docker start db-sync-test-mysql",
+    "docker:stop": "docker stop db-sync-test-mysql"
   },
   "require": {
     "psr/log": "^1.0",

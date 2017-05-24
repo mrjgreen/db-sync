@@ -1,18 +1,26 @@
 language: php
-sudo: false
+
+sudo: required
+
+services:
+  - docker
 
 php:
   - 5.6
   - 7.0
   - 7.1
 
-
 before_script:
-  - composer install --dev
+  - composer docker:setup
+  - composer install
 
 script:
- - mkdir -p build/logs
- - php vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+  - mkdir -p build/logs
+  - composer test -- --coverage-clover build/logs/clover.xml
 
 after_script:
  - php vendor/bin/coveralls -v
+
+cache:
+  directories:
+  - vendor

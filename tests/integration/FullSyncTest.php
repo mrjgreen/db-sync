@@ -38,14 +38,13 @@ class FullSyncTest extends TestAbstract
 
         $db = self::DATABASE;
 
-        $host = $this->config['host'];
+        $host = isset($this->config['port']) ? $this->config['host'] . ':' . $this->config['port'] : $this->config['host'];
         $user = $this->config['username'];
         $password = $this->config['password'];
 
         $password and $password = "-p $password";
 
         $command = __DIR__ . "/../../bin/sync $host $host $db.dbsynctest1 --target.table=$db.dbsynctest2 -u $user $password -e";
-
         exec($command, $output, $code);
 
         $this->assertEquals(0, $code);
@@ -197,26 +196,6 @@ class FullSyncTest extends TestAbstract
 
         // Create a "source has deleted rows" situation
         $deleteFromSource and $this->connection->query("DELETE FROM $dbName.dbsynctest1 WHERE customerNumber % 12 = 0");
-    }
-
-    private function createTestTable($table)
-    {
-        $this->connection->query("CREATE TABLE $table (
-  `customerNumber` int(11) NOT NULL,
-  `customerName` varchar(50) NOT NULL,
-  `contactLastName` varchar(50) DEFAULT NULL,
-  `contactFirstName` varchar(50) DEFAULT NULL,
-  `return` varchar(50) DEFAULT NULL,
-  `addressLine1` varchar(50) DEFAULT NULL,
-  `addressLine2` varchar(50) DEFAULT NULL,
-  `city` varchar(50) DEFAULT NULL,
-  `state` varchar(50) DEFAULT NULL,
-  `postalCode` varchar(15) DEFAULT NULL,
-  `country` varchar(50) DEFAULT NULL,
-  `salesRepEmployeeNumber` int(11) DEFAULT NULL,
-  `creditLimit` double DEFAULT NULL,
-  PRIMARY KEY (`customerNumber`,`customerName`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
     }
 
     private function populateTestTable($table)

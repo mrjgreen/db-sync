@@ -17,18 +17,18 @@ What is it?
 
 DbSync is a tool for efficiently comparing and synchronising two or more remote MySQL database tables.
 
-In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) 
-over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have 
-an inconsistency in a block, the tool performs a checksum on each half of the block, recursively (down to a minimum 
+In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32)
+over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have
+an inconsistency in a block, the tool performs a checksum on each half of the block, recursively (down to a minimum
 block transfer size), until it finds the inconsistency.
 
 
 Notes About Deletion
 --------------------
-DbSync will only delete rows from the destination that no longer exist on the source when the `--delete` option is specified. 
+DbSync will only delete rows from the destination that no longer exist on the source when the `--delete` option is specified.
 Use this option with extreme caution. Always perform a dry run first.
 
-If you use DbSync to synchronise a table which has row deletions on the source without using the `--delete` option, 
+If you use DbSync to synchronise a table which has row deletions on the source without using the `--delete` option,
 DbSync will find inconsistencies in any block with a deleted row on every run but will not be able to remove the rows from the target.
 
 
@@ -132,7 +132,7 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -i up
 
 Sync every column from the table `web.customers` but only use the `updated_at` fields when calculating the hash:
 
- > Inconsistencies in other fields will not be detected. In the event of a hash inconsistency in fields which are 
+ > Inconsistencies in other fields will not be detected. In the event of a hash inconsistency in fields which are
  included, the excluded fields will still be copied to the target host.
 
 ```
@@ -143,7 +143,7 @@ db-sync --user root --password mypass 127.0.0.1 111.222.3.44 web.customers -C up
 
 Sync every column from the table `web.customers` and use all fields except for the `notes` or `info` fields when calculating the hash:
 
- > Inconsistencies in excluded fields will not be detected. In the event of a hash inconsistency in fields which are included, 
+ > Inconsistencies in excluded fields will not be detected. In the event of a hash inconsistency in fields which are included,
  the excluded fields will still be copied to the target host.
 
  > This is especially useful for tables with long text fields that don't change after initial insert, or which are associated
@@ -200,7 +200,7 @@ $sync->delete(true);
 $sourceTable = new Table($sourceConnection, $sourceDb, $sourceTable);
 $targetTable = new Table($targetConnection, $targetDb, $targetTable);
 
-// if you only want specific columns 
+// if you only want specific columns
 $columnConfig = new ColumnConfiguration($syncColumns, $ignoreColumns);
 
 // optionally apply a where clause - this can be useful when sync-ing large tables, where
@@ -211,6 +211,19 @@ $targetTable->setWhereClause(new WhereClause("column_name > ?", ['value']));
 
 $sync->sync($sourceTable, $targetTable, $columnConfig);
 ```
+
+Testing
+-------
+
+[Docker](https://www.docker.com/) is used to create a one-off mysql database, so you need to [install docker](https://docs.docker.com/engine/installation/) before you can run the tests.
+
+When docker is installed, you need to setup [the mysql image](https://hub.docker.com/r/mysql/mysql-server/) and run the tests.
+Fortunately, this is very easy to do.
+
+1. `composer docker:setup` - setup the mysql image.
+2. `composer test` - run the tests in phpunit.
+
+The mysql image will keep running in docker, until you remove it via `composer docker:clean`. You can re-run the tests anytime via `composer test`. Do not run `composer docker:setup` again, unless you have removed the mysql image.
 
 Roadmap
 -------
