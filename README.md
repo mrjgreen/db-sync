@@ -19,7 +19,7 @@ DbSync is a tool for efficiently comparing and synchronising two or more remote 
 
 In order to do this without comparing every byte of data, the tool preforms a checksum (MD5, SHA1, CRC32) 
 over a range of rows on both the source and destination tables, and compares only the hash. If a block is found to have 
-an inconsistency in a block, the tool performs a checksum on each half of the block, recursively (down to a minimum 
+an inconsistency, the tool performs a checksum on each half of the block, recursively (down to a minimum 
 block transfer size), until it finds the inconsistency.
 
 
