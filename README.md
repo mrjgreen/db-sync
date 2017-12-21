@@ -161,6 +161,14 @@ Sync the table `web.customers` to a table under a different name in a different 
 db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers
 ```
 
+##### Example 9
+
+Sync the table `web.customers` only including active records and delete records in the target table, that are no longer active:
+
+```
+db-sync --user root --password mypass 127.0.0.1 111.222.3.44:13306 web.customers --delete --where="active = 1"
+```
+
 Config File
 -----------
 
