@@ -161,7 +161,6 @@ Sync the table `web.customers` to a table under a different name in a different 
 db-sync --user root --password mypass --target.table web_backup.customers_2 127.0.0.1 111.222.3.44 web.customers
 ```
 
-
 Config File
 -----------
 
@@ -184,7 +183,7 @@ You can include the library within your project and use the components directly:
 
 ```PHP
 use \DbSync\DbSync;
-use \DbSync\Transfer;
+use \DbSync\Transfer\Transfer;
 use \DbSync\Hash\ShaHash;
 use \DbSync\Table;
 use \DbSync\ColumnConfiguration;
