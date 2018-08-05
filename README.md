@@ -210,13 +210,16 @@ $targetTable = new Table($targetConnection, $targetDb, $targetTable);
 // if you only want specific columns 
 $columnConfig = new ColumnConfiguration($syncColumns, $ignoreColumns);
 
+// if you only want to use specific columns for the comparison
+$compareConfig = new ColumnConfiguration($compareColumns, $ignoreCompareColumns);
+
 // optionally apply a where clause - this can be useful when sync-ing large tables, where
 // you can make use of a column to rule out large portions of the data
 // that you know haven't changed, such as columns with "on update CURRENT_TIMESTAMP" etc..
 $sourceTable->setWhereClause(new WhereClause("column_name = ?", ['value']));
 $targetTable->setWhereClause(new WhereClause("column_name > ?", ['value']));
 
-$sync->sync($sourceTable, $targetTable, $columnConfig);
+$sync->sync($sourceTable, $targetTable, $columnConfig, $compareConfig);
 ```
 
 Roadmap
